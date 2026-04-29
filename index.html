@@ -1,681 +1,335 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MotoAcessórios Brasil — Sua Loja Oficial de Motopeças</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moto Acessorios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- TOPBAR -->
-    <div class="topbar">
-        <div class="wrap">
-            <span><i class="fa-solid fa-tag"></i> PAGANDO COM PIX VOCÊ GANHA <strong>5% DE DESCONTO</strong> &mdash; SAIBA MAIS</span>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <div class="top-strip">
+    <div class="container top-strip-inner">
+      <div class="top-strip-viewport" aria-label="Vantagens da loja">
+        <div class="top-strip-track" id="top-strip-track">
+          <span class="top-strip-item">5% OFF no PIX</span>
+          <span class="top-strip-item">Parcele em ate 12x s/ juros</span>
+          <span class="top-strip-item">Envio rapido para todo Brasil</span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="container header-main">
+      <a class="logo" href="#">
+        <span class="logo-mark"><i class="fa-solid fa-motorcycle"></i></span>
+        <span class="logo-text">MOTO <b>ACESSORIOS</b></span>
+      </a>
+
+      <form class="search" onsubmit="return false;">
+        <input type="text" placeholder="O que voce procura?">
+        <button type="submit" aria-label="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </form>
+
+      <div class="header-actions">
+        <a href="#"><i class="fa-regular fa-user"></i><span>Entrar<br>Minha conta</span></a>
+        <a href="#"><i class="fa-solid fa-cart-shopping"></i><span>Carrinho</span><em class="cart-count">0</em></a>
+      </div>
+
+      <button class="menu-toggle" aria-label="Abrir menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
     </div>
 
-    <!-- HEADER -->
-    <header class="header">
-        <div class="wrap header__inner">
-            <a href="#" class="logo">
-                <span class="logo__moto">MOTO</span><span class="logo__acc">ACESSÓRIOS</span><br>
-                <span class="logo__brasil">BRASIL</span>
-            </a>
-
-            <form class="searchbar" onsubmit="return false;">
-                <input type="text" placeholder="O que deseja procurar?">
-                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </form>
-
-            <nav class="header__actions">
-                <a href="#" class="action-btn">
-                    <i class="fa-regular fa-user"></i>
-                    <span>Atendimento</span>
-                </a>
-                <a href="#" class="action-btn">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Rastrear pedido</span>
-                </a>
-                <a href="#" class="action-btn">
-                    <i class="fa-regular fa-circle-user"></i>
-                    <span>Minha conta</span>
-                </a>
-                <a href="#" class="action-btn cart-btn">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    <span class="cart-badge">0</span>
-                </a>
-            </nav>
+    <nav class="main-nav">
+      <div class="mobile-nav-overlay"></div>
+      <div class="container main-nav-shell">
+        <div class="mobile-nav-head">
+          <div class="mobile-nav-user">
+            <span class="mobile-nav-avatar"><i class="fa-solid fa-user"></i></span>
+            <div>
+              <strong>Ola, visitante</strong>
+              <small>Entre ou cadastre-se</small>
+            </div>
+          </div>
+          <button class="menu-close" aria-label="Fechar menu"><i class="fa-solid fa-xmark"></i></button>
         </div>
-    </header>
 
-    <!-- NAV -->
-    <nav class="mainnav">
-        <div class="wrap mainnav__inner">
-            <ul>
-                <li class="has-mega-menu">
-                    <a href="#">Capacetes <i class="fa-solid fa-chevron-down"></i></a>
-                    <div class="mega-menu">
-                        <div class="mega-menu__links">
-                            <a href="#">Capacetes Fechados</a>
-                            <a href="#">Capacetes Articulados</a>
-                            <a href="#">Capacetes Off Road</a>
-                            <a href="#">Viseiras</a>
-                            <a href="#">Acessórios para Capacete</a>
-                        </div>
-                        <div class="mega-menu__feature" data-mega-slider>
-                            <div class="mega-menu__track">
-                                <article class="mega-product is-active">
-                                    <img src="https://images.tcdn.com.br/img/img_prod/186407/capacete_mt_braker_bersin_a3_brilho_11218_1_0510f9434bdd8eff5398bbf8668dcf9f.jpg" alt="Capacete MT Braker">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Destaque</span>
-                                        <h4>Capacete MT Braker Bersin A3</h4>
-                                        <strong>R$ 899,90</strong>
-                                    </div>
-                                </article>
-                                <article class="mega-product">
-                                    <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/CAP.png" alt="Linha de capacetes">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Coleção</span>
-                                        <h4>Modelos urbanos e touring</h4>
-                                        <strong>Ver opções</strong>
-                                    </div>
-                                </article>
-                            </div>
-                            <div class="mega-menu__dots"><button class="is-active" type="button"></button><button type="button"></button></div>
-                        </div>
-                    </div>
-                </li>
-                <li class="has-mega-menu">
-                    <a href="#">Baú <i class="fa-solid fa-chevron-down"></i></a>
-                    <div class="mega-menu">
-                        <div class="mega-menu__links">
-                            <a href="#">Baú Superior</a>
-                            <a href="#">Baú Lateral</a>
-                            <a href="#">Suportes</a>
-                            <a href="#">Bolsas de Viagem</a>
-                            <a href="#">Organizadores</a>
-                        </div>
-                        <div class="mega-menu__feature" data-mega-slider>
-                            <div class="mega-menu__track">
-                                <article class="mega-product is-active">
-                                    <img src="https://www.carrosnovale.com.br/wp-content/uploads/2024/01/Melhores-Baus-para-Motos-10-Otimas-Opcoes.jpg" alt="Baús para moto">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Top viagem</span>
-                                        <h4>Baús para estrada e uso urbano</h4>
-                                        <strong>Até 12x sem juros</strong>
-                                    </div>
-                                </article>
-                                <article class="mega-product">
-                                    <img src="https://images.tcdn.com.br/img/img_prod/490060/bau_superior_braz_atacama_55l_escovado_ref_0019_43633_1_f4c39600d1a7f141123cdc2f70a9b419.jpg" alt="Baú superior">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Mais vendido</span>
-                                        <h4>Baú superior 55L escovado</h4>
-                                        <strong>R$ 2.104,25</strong>
-                                    </div>
-                                </article>
-                            </div>
-                            <div class="mega-menu__dots"><button class="is-active" type="button"></button><button type="button"></button></div>
-                        </div>
-                    </div>
-                </li>
-                <li class="has-mega-menu">
-                    <a href="#">Vestuário <i class="fa-solid fa-chevron-down"></i></a>
-                    <div class="mega-menu">
-                        <div class="mega-menu__links">
-                            <a href="#">Jaquetas</a>
-                            <a href="#">Calças</a>
-                            <a href="#">Macacões</a>
-                            <a href="#">Segunda pele</a>
-                            <a href="#">Coleção feminina</a>
-                        </div>
-                        <div class="mega-menu__feature" data-mega-slider>
-                            <div class="mega-menu__track">
-                                <article class="mega-product is-active">
-                                    <img src="https://racingrabbit.com.br/cdn/shop/files/Jaqueta_Motociclista_Racing_Rabbit_Hawker_Pro_Preta_Ft2..webp?v=1774542200&width=1445" alt="Jaqueta motociclista">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Novo</span>
-                                        <h4>JAQUETA - ALPINESTARS ST 7 2L GORE-TEX PRETO / CINZA</h4>
-                                        <strong>R$ 5.509,52</strong>
-                                        <span class="mega-product__installments">à vista no PIX ou 12x de <b>R$ 483,29</b> sem juros</span>
-                                    </div>
-                                </article>
-                                <article class="mega-product">
-                                    <img src="https://images.tcdn.com.br/img/img_prod/490060/macacao_alpinestars_gp_plus_v4_1pc_preto_vermelho_fluo_azul_44954_1_7d7f0f26c62e0fb267a4b3382a59258b.jpg" alt="Macacão Alpinestars">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Premium</span>
-                                        <h4>Macacão Alpinestars GP Plus V4</h4>
-                                        <strong>12x de R$ 999,92</strong>
-                                    </div>
-                                </article>
-                            </div>
-                            <div class="mega-menu__dots"><button class="is-active" type="button"></button><button type="button"></button></div>
-                        </div>
-                    </div>
-                </li>
-                <li class="has-mega-menu">
-                    <a href="#">Manutenção <i class="fa-solid fa-chevron-down"></i></a>
-                    <div class="mega-menu">
-                        <div class="mega-menu__links">
-                            <a href="#">Pneus</a>
-                            <a href="#">Óleos</a>
-                            <a href="#">Pastilhas</a>
-                            <a href="#">Filtros</a>
-                            <a href="#">Ferramentas</a>
-                        </div>
-                        <div class="mega-menu__feature" data-mega-slider>
-                            <div class="mega-menu__track">
-                                <article class="mega-product is-active">
-                                    <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/pneu.pnj.jpg" alt="Pneus de moto">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Oficina</span>
-                                        <h4>Pneus e manutenção preventiva</h4>
-                                        <strong>Marcas confiáveis</strong>
-                                    </div>
-                                </article>
-                                <article class="mega-product">
-                                    <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/POL.png" alt="Protetores e peças">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Proteção</span>
-                                        <h4>Peças e protetores para moto</h4>
-                                        <strong>Monte seu setup</strong>
-                                    </div>
-                                </article>
-                            </div>
-                            <div class="mega-menu__dots"><button class="is-active" type="button"></button><button type="button"></button></div>
-                        </div>
-                    </div>
-                </li>
-                <li class="has-mega-menu">
-                    <a href="#">Acessórios p/ Motos <i class="fa-solid fa-chevron-down"></i></a>
-                    <div class="mega-menu">
-                        <div class="mega-menu__links">
-                            <a href="#">Intercomunicadores</a>
-                            <a href="#">Suporte para celular</a>
-                            <a href="#">Iluminação</a>
-                            <a href="#">Tomadas USB</a>
-                            <a href="#">Protetores</a>
-                        </div>
-                        <div class="mega-menu__feature" data-mega-slider>
-                            <div class="mega-menu__track">
-                                <article class="mega-product is-active">
-                                    <img src="https://images.tcdn.com.br/img/img_prod/1250005/intercomunicador_cardo_packtalk_pro_4056_8_bc3c23f675b099e37b3f99ced7a66c88.jpg" alt="Intercomunicador Cardo">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Tecnologia</span>
-                                        <h4>Intercomunicador Cardo Packtalk</h4>
-                                        <strong>Comunicação premium</strong>
-                                    </div>
-                                </article>
-                                <article class="mega-product">
-                                    <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/IJM.png" alt="Acessórios para pilotagem">
-                                    <div class="mega-product__info">
-                                        <span class="mega-product__tag">Conectividade</span>
-                                        <h4>Acessórios para mais conforto</h4>
-                                        <strong>Veja a linha</strong>
-                                    </div>
-                                </article>
-                            </div>
-                            <div class="mega-menu__dots"><button class="is-active" type="button"></button><button type="button"></button></div>
-                        </div>
-                    </div>
-                </li>
-                <li><a href="#">Motos</a></li>
-                <li class="more"><a href="#">+ Categorias</a></li>
-            </ul>
+        <div class="mobile-nav-shortcuts">
+          <a href="#"><i class="fa-solid fa-truck-fast"></i><span>Rastrear pedido</span></a>
+          <a href="#"><i class="fa-regular fa-circle-question"></i><span>Atendimento</span></a>
         </div>
+
+        <h4 class="mobile-nav-title">Navegue por categoria</h4>
+
+        <ul>
+          <li><a href="#" data-menu-key="capacetes"><span>Capacetes</span></a></li>
+          <li><a href="#" data-menu-key="baus"><span>Baú</span></a></li>
+          <li><a href="#" data-menu-key="vestuario"><span>Vestuário</span></a></li>
+          <li><a href="#" data-menu-key="manutencao"><span>Manutenção</span></a></li>
+          <li><a href="#" data-menu-key="acessorios"><span>Acessórios p/ motos</span></a></li>
+        </ul>
+      </div>
     </nav>
 
-    <!-- HERO -->
-    <section class="hero" aria-label="Banner principal rotativo">
-        <div class="hero-slider__track">
-            <a class="hero-slide is-active" href="#" aria-label="Banner intercomunicador">
-                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/IJM.png" alt="Banner intercomunicador premium">
-            </a>
-            <a class="hero-slide" href="#">
-                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/BNM.png" alt="Banner promocional moto acessórios 2">
-            </a>
-            <a class="hero-slide" href="#">
-                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/1.jpg" alt="Banner promocional moto acessórios 3">
-            </a>
-        </div>
+    <div class="mega-menu" id="mega-menu">
+      <div class="container mega-wrap">
+        <aside class="mega-categories">
+          <h4>Categorias</h4>
+          <ul id="mega-categories-list"></ul>
+        </aside>
 
-        <div class="hero-slider__dots" aria-label="Navegação do banner">
-            <button class="hero-dot is-active" type="button" aria-label="Banner 1"></button>
-            <button class="hero-dot" type="button" aria-label="Banner 2"></button>
-            <button class="hero-dot" type="button" aria-label="Banner 3"></button>
+        <section class="mega-preview">
+          <div class="mega-preview-track" id="mega-preview-track"></div>
+
+          <div class="mega-controls">
+            <button type="button" class="mega-arrow" id="mega-prev" aria-label="Produto anterior">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="mega-dots" id="mega-dots"></div>
+            <button type="button" class="mega-arrow" id="mega-next" aria-label="Proximo produto">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <h1>EQUIPE-SE PARA A <span>ESTRADA</span></h1>
+          <p>Os melhores acessorios para sua moto com qualidade e preco justo.</p>
+          <div class="hero-cta">
+            <a href="#" class="btn btn-green"><i class="fa-solid fa-bag-shopping"></i> VER PRODUTOS</a>
+            <a href="#" class="btn btn-outline"><i class="fa-brands fa-whatsapp"></i> CHAMAR NO WHATSAPP</a>
+          </div>
         </div>
+        <div class="hero-image">
+          <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1200&q=80" alt="Piloto em moto esportiva">
+        </div>
+      </div>
     </section>
 
-    <!-- TRUST BAR -->
-    <section class="trustbar">
-        <div class="wrap trustbar__grid">
-            <div class="trust-item">
-                <i class="fa-solid fa-store"></i>
-                <div>
-                    <strong>DESDE 1994</strong>
-                    <span>Realizando sonhos</span>
-                </div>
-            </div>
-            <div class="trust-item">
-                <i class="fa-solid fa-comments"></i>
-                <div>
-                    <strong>5% DE DESCONTOS</strong>
-                    <span>pagamentos via pix</span>
-                </div>
-            </div>
-            <div class="trust-item">
-                <i class="fa-solid fa-box-open"></i>
-                <div>
-                    <strong>ENVIO RÁPIDO</strong>
-                    <span>envio no dia</span>
-                </div>
-            </div>
-            <div class="trust-item">
-                <i class="fa-solid fa-headset"></i>
-                <div>
-                    <strong>PERSONALIZADO</strong>
-                    <span>em até 12x s/ juros</span>
-                </div>
-            </div>
-            <div class="trust-item">
-                <i class="fa-solid fa-shield-halved"></i>
-                <div>
-                    <strong>ANTIFRAUDE</strong>
-                    <span>Compra 100% segura</span>
-                </div>
-            </div>
-        </div>
+    <section class="benefits">
+      <div class="container benefits-grid">
+        <article><i class="fa-solid fa-truck-fast"></i><div><h4>Envio rapido</h4><p>Postamos no mesmo dia</p></div></article>
+        <article><i class="fa-solid fa-arrows-rotate"></i><div><h4>Ate 12x sem juros</h4><p>Parcele com seguranca</p></div></article>
+        <article><i class="fa-solid fa-lock"></i><div><h4>Compra segura</h4><p>Seus dados protegidos</p></div></article>
+        <article><i class="fa-solid fa-percent"></i><div><h4>5% OFF no PIX</h4><p>Desconto automatico</p></div></article>
+      </div>
     </section>
 
-    <!-- BANNERS GRID -->
-    <section class="banners-grid">
-        <div class="wrap banners-grid__inner">
-            <div class="banner-card banner-card--img">
-                <img src="https://images.tcdn.com.br/img/img_prod/186407/capacete_mt_braker_bersin_a3_brilho_11218_1_0510f9434bdd8eff5398bbf8668dcf9f.jpg" alt="Capacetes de moto">
-                <div class="banner-card__overlay">
-                    <span>CAPACETES</span>
-                    <button class="btn btn--sm btn--green">EXPLORAR</button>
-                </div>
-            </div>
-            <div class="banner-card banner-card--img">
-                <img src="https://images.tcdn.com.br/img/img_prod/1250005/intercomunicador_cardo_packtalk_pro_4056_8_bc3c23f675b099e37b3f99ced7a66c88.jpg" alt="Intercomunicador Cardo Packtalk">
-                <div class="banner-card__overlay">
-                    <span class="tag">FREE COM 4X</span>
-                    <span>INTERCOMUNICADOR<br>CARDO PACKTALK</span>
-                    <button class="btn btn--sm btn--green">EXPLORAR</button>
-                </div>
-            </div>
-            <div class="banner-card banner-card--img">
-                <img src="https://www.carrosnovale.com.br/wp-content/uploads/2024/01/Melhores-Baus-para-Motos-10-Otimas-Opcoes.jpg" alt="Baús e malas para moto">
-                <div class="banner-card__overlay">
-                    <span>BAÚS &amp; MALAS</span>
-                    <button class="btn btn--sm btn--green">EXPLORAR</button>
-                </div>
-            </div>
-            <div class="banner-card banner-card--img">
-                <img src="https://racingrabbit.com.br/cdn/shop/files/Jaqueta_Motociclista_Racing_Rabbit_Hawker_Pro_Preta_Ft2..webp?v=1774542200&width=1445" alt="Jaquetas para motociclista">
-                <div class="banner-card__overlay">
-                    <span>JAQUETAS</span>
-                    <button class="btn btn--sm btn--green">EXPLORAR</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CATEGORIAS -->
     <section class="categories">
-        <div class="wrap">
-            <h2 class="section-title">ESCOLHA POR CATEGORIA</h2>
-            <div class="categories-slider" data-slider="categories">
-                <button class="categories-nav categories-nav--prev" type="button" aria-label="Categoria anterior">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
+      <div class="container">
+        <h2>CATEGORIAS</h2>
+        <div class="categories-slider" data-slider="categories">
+          <button class="categories-arrow categories-prev" type="button" aria-label="Categoria anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
 
-                <div class="categories-viewport">
-                    <div class="categories-track">
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/CAP.png" alt="Capacetes">
-                            </div>
-                            <span>CAPACETES</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/jaqueta.png" alt="Jaquetas">
-                            </div>
-                            <span>JAQUETAS</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/pnj.png" alt="Calças">
-                            </div>
-                            <span>CALÇAS</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/luva.png" alt="Luvas">
-                            </div>
-                            <span>LUVAS</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/OJI.png" alt="Calçados">
-                            </div>
-                            <span>CALÇADOS</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/POL.png" alt="Protetores">
-                            </div>
-                            <span>PROTETORES</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/BAU.png" alt="Baús">
-                            </div>
-                            <span>BAÚS</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/moto.png" alt="Motos">
-                            </div>
-                            <span>MOTOS</span>
-                        </a>
-                        <a href="#" class="cat-item">
-                            <div class="cat-item__circle">
-                                <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/pneu.pnj.jpg" alt="Manutenção">
-                            </div>
-                            <span>MANUTENÇÃO</span>
-                        </a>
-                    </div>
-                </div>
-
-                <button class="categories-nav categories-nav--next" type="button" aria-label="Próxima categoria">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
+          <div class="categories-viewport">
+            <div class="categories-track">
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/CAP.png" alt="Capacetes"></div><span>CAPACETES</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/jaqueta.png" alt="Jaquetas"></div><span>JAQUETAS</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/pnj.png" alt="Calcas"></div><span>CALCAS</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/luva.png" alt="Luvas"></div><span>LUVAS</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/OJI.png" alt="Calcados"></div><span>CALCADOS</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/POL.png" alt="Protetores"></div><span>PROTETORES</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/BAU.png" alt="Baus"></div><span>BAUS</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/moto.png" alt="Motos"></div><span>MOTOS</span></a>
+              <a href="#" class="cat-item reveal visible"><div class="cat-item__circle"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/pneu.pnj.jpg" alt="Manutencao"></div><span>MANUTENCAO</span></a>
             </div>
+          </div>
 
-            <div class="categories-dots" aria-label="Paginação das categorias"></div>
+          <button class="categories-arrow categories-next" type="button" aria-label="Proxima categoria">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
         </div>
+      </div>
     </section>
 
-    <!-- DESTAQUE DA SEMANA -->
-    <section class="weekly">
-        <div class="wrap">
-            <h2 class="section-title">DESTAQUE DA SEMANA</h2>
-            <div class="weekly__grid">
-
-                <div class="prod-card">
-                    <div class="prod-card__badges">
-                        <span class="badge badge--dark">Novidade</span>
-                        <span class="badge badge--green">Destaque</span>
-                    </div>
-                    <figure><img src="https://images.tcdn.com.br/img/img_prod/490060/jaqueta_alpinestars_st_7_2l_gore_tex_preto_cinza_40549_1_b81cd73090628a6d8e4cd45b25df94c1.jpg" alt="JAQUETA - ALPINESTARS ST 7 2L GORE-TEX PRETO / CINZA"></figure>
-                    <div class="prod-card__info">
-                        <h3>JAQUETA - ALPINESTARS ST 7 2L GORE-TEX PRETO / CINZA</h3>
-                        <div class="prod-card__price">
-                            <span class="price-new">R$ 5.509,52</span>
-                        </div>
-                        <span class="price-inst">à vista no PIX ou 12x de <strong>R$ 483,29</strong> sem juros</span>
-                        <a class="btn btn--full btn--green" href="#">VER PRODUTO</a>
-                    </div>
-                </div>
-
-                <div class="prod-card">
-                    <div class="prod-card__badges">
-                        <span class="badge badge--dark">Novidade</span>
-                        <span class="badge badge--green">Destaque</span>
-                    </div>
-                    <figure><img src="https://images.tcdn.com.br/img/img_prod/490060/macacao_alpinestars_gp_plus_v4_1pc_preto_vermelho_fluo_azul_44954_1_7d7f0f26c62e0fb267a4b3382a59258b.jpg" alt="MACACAO ALPINESTARS GP PLUS V4 1PC PRETO VERMELHO FLUO AZUL"></figure>
-                    <div class="prod-card__info">
-                        <h3>MACACAO ALPINESTARS GP PLUS V4 1PC PRETO VERMELHO FLUO AZUL</h3>
-                        <div class="prod-card__price">
-                            <span class="price-old">R$ 11.999,00</span>
-                            <span class="price-new">R$ 11.999,00</span>
-                        </div>
-                        <span class="price-inst">ou 12x de <strong>R$ 999,92</strong> sem juros</span>
-                        <a class="btn btn--full btn--green" href="#">VER PRODUTO</a>
-                    </div>
-                </div>
-
-                <div class="prod-card">
-                    <div class="prod-card__badges">
-                        <span class="badge badge--dark">Novidade</span>
-                        <span class="badge badge--green">Destaque</span>
-                    </div>
-                    <figure><img src="https://images.tcdn.com.br/img/img_prod/490060/jaqueta_feminina_texx_nomade_lady_azul_verde_43232_1_bc1ac89397916500c210238345c23bea.jpg" alt="JAQUETA FEMININA - TEXX NOMADE LADY AZUL / VERDE"></figure>
-                    <div class="prod-card__info">
-                        <h3>JAQUETA FEMININA - TEXX NOMADE LADY AZUL / VERDE</h3>
-                        <div class="prod-card__price">
-                            <span class="price-new">R$ 1.652,05</span>
-                        </div>
-                        <span class="price-inst">à vista no PIX ou 12x de <strong>R$ 144,92</strong> sem juros</span>
-                        <a class="btn btn--full btn--green" href="#">VER PRODUTO</a>
-                    </div>
-                </div>
-
-                <div class="prod-card">
-                    <div class="prod-card__badges">
-                        <span class="badge badge--dark">Novidade</span>
-                        <span class="badge badge--green">Destaque</span>
-                    </div>
-                    <figure><img src="https://images.tcdn.com.br/img/img_prod/490060/jaqueta_alpinestars_bogota_pro_drystar_azul_preto_vermelho_38124_1_7570b27ccce893af0016afffa31cd869.jpg" alt="JAQUETA ALPINESTARS BOGOTA PRO DRYSTAR AZUL/PRETO/VERMELHO"></figure>
-                    <div class="prod-card__info">
-                        <h3>JAQUETA ALPINESTARS BOGOTA PRO DRYSTAR AZUL/PRETO/VERMELHO</h3>
-                        <div class="prod-card__price">
-                            <span class="price-new">R$ 3.704,05</span>
-                        </div>
-                        <span class="price-inst">à vista no PIX ou 12x de <strong>R$ 324,92</strong> sem juros</span>
-                        <a class="btn btn--full btn--green" href="#">VER PRODUTO</a>
-                    </div>
-                </div>
-
-                <div class="prod-card prod-card--highlight">
-                    <span class="prod-highlight-tag"><i class="fa-solid fa-truck-fast"></i> FRETE GRÁTIS</span>
-                    <div class="prod-card__badges">
-                        <span class="badge badge--dark">Novidade</span>
-                        <span class="badge badge--green">Destaque</span>
-                    </div>
-                    <figure><img src="https://images.tcdn.com.br/img/img_prod/490060/bau_superior_braz_atacama_55l_escovado_ref_0019_43633_1_f4c39600d1a7f141123cdc2f70a9b419.jpg" alt="BAU SUPERIOR - BRAZ ATACAMA 55L ESCOVADO"></figure>
-                    <div class="prod-card__info">
-                        <h3>BAU SUPERIOR - BRAZ ATACAMA 55L ESCOVADO (REF:0019)</h3>
-                        <div class="prod-card__price">
-                            <span class="price-new">R$ 2.104,25</span>
-                        </div>
-                        <span class="price-inst">à vista no PIX ou 12x de <strong>R$ 184,58</strong> sem juros</span>
-                        <a class="btn btn--full btn--yellow" href="#">VER PRODUTO</a>
-                    </div>
-                </div>
-
-            </div>
+    <section class="products">
+      <div class="container">
+        <div class="section-head">
+          <h2>DESTAQUE DA SEMANA</h2>
+          <a href="#">VER TODOS</a>
         </div>
+
+        <div class="product-grid">
+          <article class="product-card">
+            <img src="https://images.tcdn.com.br/img/img_prod/490060/capacete_fechado_norisk_ff302_soul_preto_fosco_1_20260331150948_69e006561dab.jpg" alt="Capacete Norisk FF302 Soul Preto Fosco">
+            <span class="cat">CAPACETES</span>
+            <h3>Capacete Fechado Norisk FF302 Soul Preto Fosco</h3>
+            <p class="rating">★★★★★</p>
+            <strong>R$ 949,05</strong>
+            <p class="installments">12x de R$ 83,25 sem juros</p>
+            <button class="buy-btn js-buy"><i class="fa-solid fa-cart-plus"></i> COMPRAR</button>
+          </article>
+
+          <article class="product-card">
+            <img src="https://images.tcdn.com.br/img/img_prod/490060/jaqueta_ls2_norway_azul_preto_cinza_vermelho_36241_1_af99f05f29650a24706d6dd5d8984341.jpg" alt="Jaqueta LS2 Norway Azul Preto Cinza Vermelho">
+            <span class="cat">VESTUARIO</span>
+            <h3>Jaqueta LS2 Norway Azul Preto Cinza Vermelho</h3>
+            <p class="rating">★★★★★</p>
+            <strong>R$ 2.089,91</strong>
+            <p class="installments">12x de R$ 183,33 sem juros</p>
+            <button class="buy-btn js-buy"><i class="fa-solid fa-cart-plus"></i> COMPRAR</button>
+          </article>
+
+          <article class="product-card">
+            <img src="https://images.tcdn.com.br/img/img_prod/490060/macacao_alpinestars_gp_plus_v4_1pc_preto_vermelho_fluo_azul_44954_1_7d7f0f26c62e0fb267a4b3382a59258b.jpg" alt="Macacao Alpinestars GP Plus V4 1PC">
+            <span class="cat">VESTUARIO</span>
+            <h3>Macacao Alpinestars GP Plus V4 1PC Preto Vermelho Fluo Azul</h3>
+            <p class="rating">★★★★★</p>
+            <strong>12x de R$ 999,92</strong>
+            <p class="installments">Sem juros no cartao</p>
+            <button class="buy-btn js-buy"><i class="fa-solid fa-cart-plus"></i> COMPRAR</button>
+          </article>
+
+          <article class="product-card">
+            <img src="https://images.tcdn.com.br/img/img_prod/490060/bau_superior_braz_atacama_55l_escovado_ref_0019_43633_1_f4c39600d1a7f141123cdc2f70a9b419.jpg" alt="Bau Superior Braz Atacama 55L Escovado">
+            <span class="cat">BAUS</span>
+            <h3>Bau Superior Braz Atacama 55L Escovado (Ref:0019)</h3>
+            <p class="rating">★★★★★</p>
+            <strong>R$ 2.104,25</strong>
+            <p class="installments">12x de R$ 184,58 sem juros</p>
+            <button class="buy-btn js-buy"><i class="fa-solid fa-cart-plus"></i> COMPRAR</button>
+          </article>
+
+          <article class="product-card">
+            <img src="https://images.tcdn.com.br/img/img_prod/490060/jaqueta_feminina_texx_nomade_lady_azul_verde_43232_1_bc1ac89397916500c210238345c23bea.jpg" alt="Jaqueta Feminina Texx Nomade Lady Azul Verde">
+            <span class="cat">VESTUARIO</span>
+            <h3>Jaqueta Feminina Texx Nomade Lady Azul Verde</h3>
+            <p class="rating">★★★★★</p>
+            <strong>R$ 1.652,05</strong>
+            <p class="installments">12x de R$ 144,92 sem juros</p>
+            <button class="buy-btn js-buy"><i class="fa-solid fa-cart-plus"></i> COMPRAR</button>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <!-- BANNERS SERVIÇOS -->
-    <section class="services">
-        <div class="wrap services__grid">
-            <div class="service-card service-card--dark">
-                <div class="service-card__body">
-                    <h3>MECÂNICOS<br>ESPECIALIZADOS</h3>
-                    <p>Sua oficina parceira para rodar com segurança</p>
-                    <a href="tel:4199954-0099" class="btn btn--yellow">
-                        <i class="fa-solid fa-phone"></i> AGENDE HOJE MESMO
-                    </a>
-                </div>
-            </div>
-            <div class="service-card service-card--photo">
-                <img src="https://images.unsplash.com/photo-1558980663-3685c1d673c4?w=800&h=500&fit=crop" alt="Intercomunicador">
-                <div class="service-card__overlay">
-                    <span class="service-tag">Sem ligação — conecte direto no capacete</span>
-                    <div class="service-card__body">
-                        <h3>Instale seu intercomunicador hoje</h3>
-                        <a href="tel:41991223851" class="btn btn--yellow">
-                            <i class="fa-brands fa-whatsapp"></i> (41) 99122-3851
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <section class="promo-row">
+      <div class="container promo-grid">
+        <article>
+          <div class="promo-copy">
+            <h3>PAGUE NO PIX <span>E GANHE 5% OFF</span></h3>
+            <p>Desconto aplicado automaticamente</p>
+          </div>
+          <div class="promo-icon" aria-hidden="true">
+            <i class="fa-brands fa-pix"></i>
+          </div>
+        </article>
+        <article>
+          <div class="promo-copy">
+            <h3>PRECISOU? <span>FALE CONOSCO!</span></h3>
+            <p>Atendimento rapido pelo WhatsApp</p>
+          </div>
+          <div class="promo-icon" aria-hidden="true">
+            <i class="fa-brands fa-whatsapp"></i>
+          </div>
+        </article>
+      </div>
     </section>
 
-    <!-- MARCAS -->
-    <section class="brands">
-        <div class="wrap">
-            <h2 class="section-title">MARCAS PARCEIRAS</h2>
-            <div class="brands-slider" data-slider="brands">
-                <div class="brands-viewport">
-                    <div class="brands-track">
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/AGV.png" alt="AGV"></a>
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/ALPINESTARS...png" alt="Alpinestars"></a>
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/AXXIS.png" alt="Axxis"></a>
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/GIVI.png" alt="Givi"></a>
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/LS2.png" alt="LS2"></a>
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/NORISK.png" alt="Norisk"></a>
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/TEXX.png" alt="Texx"></a>
-                        <a href="#" class="brand-item"><img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/X11.png" alt="X11"></a>
-                    </div>
-                </div>
-            </div>
-            <div class="brands-dots" aria-label="Paginação das marcas"></div>
-        </div>
+    <section class="proof">
+      <div class="container proof-grid">
+        <article><i class="fa-regular fa-calendar"></i><div><h4>Desde 1994</h4><p>Realizando sonhos</p></div></article>
+        <article><i class="fa-regular fa-user"></i><div><h4>+10 mil clientes</h4><p>Satisfeitos</p></div></article>
+        <article><i class="fa-solid fa-shield-halved"></i><div><h4>Qualidade garantida</h4><p>Produtos originais</p></div></article>
+        <article><i class="fa-solid fa-headset"></i><div><h4>Suporte especializado</h4><p>Atendimento humanizado</p></div></article>
+      </div>
     </section>
+  </main>
 
-    <!-- DEPOIMENTOS -->
-    <section class="testimonials">
-        <div class="wrap">
-            <h2 class="section-title">Quem já comprou e recomenda</h2>
-            <div class="testimonials__grid">
-                <div class="testi-card">
-                    <div class="testi-stars">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p>"Super recomendado, em menos de 40 minutos, fiz o pedido e já recebi a encomenda."</p>
-                    <span class="testi-author">Iago</span>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p>"Depois de 10 anos que fiz a primeira compra e atendimento continua com mesmo padrão de qualidade."</p>
-                    <span class="testi-author">Gilson Almeida</span>
-                </div>
-                <div class="testi-card">
-                    <div class="testi-stars">
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p>"Atendimento impecável, capacete chegou em ótimo estado, pode comprar sem medo."</p>
-                    <span class="testi-author">Kauam Lira</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- INSTAGRAM -->
-    <section class="insta">
-        <div class="wrap">
-            <h2 class="section-title">Conheça o nosso instagram: <a href="#" class="insta-handle">@motoacessoriosbrasil</a></h2>
-            <div class="insta__grid">
-                <a href="#" class="insta-item">
-                    <img src="https://images.tcdn.com.br/img/img_prod/186407/capacete_mt_braker_bersin_a3_brilho_11218_1_0510f9434bdd8eff5398bbf8668dcf9f.jpg" alt="Capacete de moto">
-                    <div class="insta-item__hover"><i class="fa-brands fa-instagram"></i></div>
-                </a>
-                <a href="#" class="insta-item">
-                    <img src="https://images.tcdn.com.br/img/img_prod/1250005/intercomunicador_cardo_packtalk_pro_4056_8_bc3c23f675b099e37b3f99ced7a66c88.jpg" alt="Intercomunicador Cardo">
-                    <div class="insta-item__hover"><i class="fa-brands fa-instagram"></i></div>
-                </a>
-                <a href="#" class="insta-item">
-                    <img src="https://www.carrosnovale.com.br/wp-content/uploads/2024/01/Melhores-Baus-para-Motos-10-Otimas-Opcoes.jpg" alt="Baú para moto">
-                    <div class="insta-item__hover"><i class="fa-brands fa-instagram"></i></div>
-                </a>
-                <a href="#" class="insta-item">
-                    <img src="https://racingrabbit.com.br/cdn/shop/files/Jaqueta_Motociclista_Racing_Rabbit_Hawker_Pro_Preta_Ft2..webp?v=1774542200&width=1445" alt="Jaqueta para motociclista">
-                    <div class="insta-item__hover"><i class="fa-brands fa-instagram"></i></div>
-                </a>
-                <a href="#" class="insta-item">
-                    <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/luva.png" alt="Luvas para motociclista">
-                    <div class="insta-item__hover"><i class="fa-brands fa-instagram"></i></div>
-                </a>
-                <a href="#" class="insta-item">
-                    <img src="https://images.tcdn.com.br/files/490060/themes/203/img/settings/OJI.png" alt="Calçado para motociclista">
-                    <div class="insta-item__hover"><i class="fa-brands fa-instagram"></i></div>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="wrap footer__top">
-            <div class="footer-col">
-                <a href="#" class="logo logo--footer">
-                    <span class="logo__moto">MOTO</span><span class="logo__acc">ACESSÓRIOS</span><br>
-                    <span class="logo__brasil">BRASIL</span>
-                </a>
-                <div class="footer-social">
-                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
-                </div>
-            </div>
-            <div class="footer-col">
-                <h4>INSTITUCIONAL</h4>
-                <ul>
-                    <li><a href="#">Empresa</a></li>
-                    <li><a href="#">Como comprar</a></li>
-                    <li><a href="#">Segurança</a></li>
-                    <li><a href="#">Politica de Privacidade</a></li>
-                    <li><a href="#">Fale Conosco</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>ATENDIMENTO</h4>
-                <ul class="footer-contact">
-                    <li><i class="fa-solid fa-phone"></i> (45) 3333-1088</li>
-                    <li><i class="fa-brands fa-whatsapp"></i> (49) 99570-0144</li>
-                    <li><i class="fa-brands fa-whatsapp"></i> (45) 99122-3242</li>
-                    <li><i class="fa-regular fa-envelope"></i> contato@motoacessoriosbrasil.com</li>
-                </ul>
-                <p class="footer-hours"><strong>HORÁRIO DE ATENDIMENTO</strong><br>Segunda à Sexta das 08h às 18h30.</p>
-            </div>
-            <div class="footer-col">
-                <h4>FORMAS DE PAGAMENTO</h4>
-                <div class="footer-pay">
-                    <i class="fa-brands fa-cc-visa"></i>
-                    <i class="fa-brands fa-cc-mastercard"></i>
-                    <i class="fa-brands fa-cc-amex"></i>
-                    <i class="fa-brands fa-cc-paypal"></i>
-                    <i class="fa-solid fa-barcode"></i>
-                    <i class="fa-brands fa-pix"></i>
-                </div>
-                <h4 style="margin-top:20px;">SELOS DE SEGURANÇA</h4>
-                <div class="footer-seals">
-                    <span class="seal"><i class="fa-brands fa-google"></i> Google Verified</span>
-                    <span class="seal"><i class="fa-solid fa-shield-halved"></i> Site Protegido</span>
-                </div>
-            </div>
-        </div>
-        <div class="footer__bottom">
-            <div class="wrap">
-                <p>&copy; 2026 MotoAcessórios Brasil. Todos os direitos reservados.</p>
-                <p>Desenvolvido por <strong>BrasilWebTech</strong></p>
-            </div>
-        </div>
-    </footer>
-
-    <div class="toast" id="toast">
-        <i class="fa-solid fa-circle-check"></i> Produto adicionado ao carrinho!
+  <footer class="footer">
+    <div class="container footer-highlights">
+      <article><i class="fa-solid fa-truck-fast"></i><span>Envio rapido para todo Brasil</span></article>
+      <article><i class="fa-solid fa-lock"></i><span>Compra 100% segura</span></article>
+      <article><i class="fa-solid fa-credit-card"></i><span>Parcele em ate 12x sem juros</span></article>
+      <article><i class="fa-solid fa-headset"></i><span>Atendimento especializado</span></article>
     </div>
 
-    <script src="script.js"></script>
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo" href="#">
+          <span class="logo-mark"><i class="fa-solid fa-motorcycle"></i></span>
+          <span class="logo-text">MOTO <b>ACESSORIOS</b></span>
+        </a>
+        <p>Sua loja virtual de equipamentos e acessorios para motociclistas desde 1994.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>INSTITUCIONAL</h4>
+        <ul>
+          <li><a href="#">Sobre nos</a></li>
+          <li><a href="#">Nossas lojas</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Trabalhe conosco</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>AJUDA</h4>
+        <ul>
+          <li><a href="#">Como comprar</a></li>
+          <li><a href="#">Frete e entregas</a></li>
+          <li><a href="#">Trocas e devolucoes</a></li>
+          <li><a href="#">Politica de privacidade</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>ATENDIMENTO</h4>
+        <ul class="footer-contact">
+          <li><i class="fa-brands fa-whatsapp"></i> (41) 98516-3232</li>
+          <li><i class="fa-solid fa-phone"></i> (41) 3333-1088</li>
+          <li><i class="fa-regular fa-envelope"></i> contato@motoacessorios.com.br</li>
+          <li><i class="fa-regular fa-clock"></i> Seg a Sex: 08h as 18h30</li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>FORMAS DE PAGAMENTO</h4>
+        <div class="payments">
+          <i class="fa-brands fa-cc-visa"></i>
+          <i class="fa-brands fa-cc-mastercard"></i>
+          <i class="fa-brands fa-cc-amex"></i>
+          <i class="fa-brands fa-cc-paypal"></i>
+          <i class="fa-solid fa-barcode"></i>
+        </div>
+        <div class="footer-seals">
+          <span><i class="fa-solid fa-shield-halved"></i> Site protegido</span>
+          <span><i class="fa-solid fa-user-shield"></i> Dados criptografados</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container footer-bottom-wrap">
+        <p>© 2026 Moto Acessorios. Todos os direitos reservados.</p>
+        <p>CNPJ: 00.000.000/0001-00 | Curitiba - PR</p>
+      </div>
+    </div>
+  </footer>
+
+  <a class="floating-whats" href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+  <button class="to-top" aria-label="Voltar ao topo"><i class="fa-solid fa-angle-up"></i></button>
+
+  <script src="script.js"></script>
 </body>
 </html>
