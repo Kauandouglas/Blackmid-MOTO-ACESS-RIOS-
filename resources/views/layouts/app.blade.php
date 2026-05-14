@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', $title ?? config('app.name', 'Moto Acessorios'))</title>
+    <title>@yield('title', $title ?? config('app.name', 'Moto Acessórios'))</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -42,8 +42,8 @@
             <div class="top-strip-viewport" aria-label="Vantagens da loja">
                 <div class="top-strip-track" id="top-strip-track">
                     <span class="top-strip-item">5% OFF no PIX</span>
-                    <span class="top-strip-item">Parcele em ate 2x s/ juros</span>
-                    <span class="top-strip-item">Envio rapido para todo Brasil</span>
+                    <span class="top-strip-item">Parcele em até 2x s/ juros</span>
+                    <span class="top-strip-item">Envio rápido para todo Brasil</span>
                 </div>
             </div>
         </div>
@@ -53,11 +53,11 @@
         <div class="container header-main">
             <a class="logo" href="{{ route('store.index') }}">
                 <span class="logo-mark"><i class="fa-solid fa-motorcycle"></i></span>
-                <span class="logo-text">MOTO <b>ACESSORIOS</b></span>
+                <span class="logo-text">MOTO <b>ACESSÓRIOS</b></span>
             </a>
 
             <form class="search" action="{{ route('store.search') }}" method="GET" data-search-suggest-url="{{ route('store.search.suggestions') }}">
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="O que voce procura?" autocomplete="off">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="O que você procura?" autocomplete="off">
                 <button type="submit" aria-label="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
                 <div class="search-suggestions" data-search-suggestions hidden></div>
             </form>
@@ -83,7 +83,7 @@
                     <a class="mobile-nav-user" href="{{ auth()->check() ? route('store.minha-conta') : route('auth.login') }}">
                         <span class="mobile-nav-avatar"><i class="fa-solid fa-user"></i></span>
                         <div>
-                            <strong>{{ auth()->check() ? 'Minha conta' : 'Ola, visitante' }}</strong>
+                            <strong>{{ auth()->check() ? 'Minha conta' : 'Olá, visitante' }}</strong>
                             <small>{{ auth()->check() ? 'Ver pedidos e dados' : 'Entrar com e-mail' }}</small>
                         </div>
                     </a>
@@ -126,7 +126,7 @@
                     <div class="mega-controls">
                         <button type="button" class="mega-arrow" id="mega-prev" aria-label="Produto anterior"><i class="fa-solid fa-chevron-left"></i></button>
                         <div class="mega-dots" id="mega-dots"></div>
-                        <button type="button" class="mega-arrow" id="mega-next" aria-label="Proximo produto"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button type="button" class="mega-arrow" id="mega-next" aria-label="Próximo produto"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                 </section>
             </div>
@@ -152,9 +152,9 @@
 
     <footer class="footer">
         <div class="container footer-highlights">
-            <article><i class="fa-solid fa-truck-fast"></i><span>Envio rapido para todo Brasil</span></article>
+            <article><i class="fa-solid fa-truck-fast"></i><span>Envio rápido para todo Brasil</span></article>
             <article><i class="fa-solid fa-lock"></i><span>Compra 100% segura</span></article>
-            <article><i class="fa-solid fa-credit-card"></i><span>Cartao em ate 2x sem juros</span></article>
+            <article><i class="fa-solid fa-credit-card"></i><span>Cartão em até 2x sem juros</span></article>
             <article><i class="fa-solid fa-headset"></i><span>Atendimento especializado</span></article>
         </div>
 
@@ -162,9 +162,9 @@
             <div class="footer-brand">
                 <a class="logo" href="{{ route('store.index') }}">
                     <span class="logo-mark"><i class="fa-solid fa-motorcycle"></i></span>
-                    <span class="logo-text">MOTO <b>ACESSORIOS</b></span>
+                    <span class="logo-text">MOTO <b>ACESSÓRIOS</b></span>
                 </a>
-                <p>Sua loja virtual de equipamentos e acessorios para motociclistas desde 1994.</p>
+                <p>Sua loja virtual de peças, equipamentos e acessórios para motociclistas.</p>
                 <div class="footer-social">
                     <a href="{{ config('app.contact.instagram_url', '#') }}" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
                 </div>
@@ -173,7 +173,7 @@
             <div class="footer-col">
                 <h4>INSTITUCIONAL</h4>
                 <ul>
-                    <li><a href="{{ route('store.sobre') }}">Sobre nos</a></li>
+                    <li><a href="{{ route('store.sobre') }}">Sobre nós</a></li>
                     <li><a href="{{ route('store.blog') }}">Blog</a></li>
                     <li><a href="{{ route('store.contato') }}">Fale Conosco</a></li>
                 </ul>
@@ -182,8 +182,8 @@
             <div class="footer-col">
                 <h4>AJUDA</h4>
                 <ul>
-                    <li><a href="{{ route('store.trocas') }}">Trocas e devolucoes</a></li>
-                    <li><a href="{{ route('store.privacidade') }}">Politica de privacidade</a></li>
+                    <li><a href="{{ route('store.trocas') }}">Trocas e devoluções</a></li>
+                    <li><a href="{{ route('store.privacidade') }}">Política de privacidade</a></li>
                     <li><a href="{{ route('store.minha-conta') }}">Minha conta</a></li>
                 </ul>
             </div>
@@ -216,7 +216,7 @@
 
         <div class="footer-bottom">
             <div class="container footer-bottom-wrap">
-                <p>© {{ now()->year }} Moto Acessorios. Todos os direitos reservados.</p>
+                <p>© {{ now()->year }} Moto Acessórios. Todos os direitos reservados.</p>
                 <p>CNPJ: 00.000.000/0001-00 | Curitiba - PR</p>
             </div>
         </div>

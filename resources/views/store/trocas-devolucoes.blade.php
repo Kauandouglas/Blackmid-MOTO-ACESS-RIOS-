@@ -1,56 +1,52 @@
 @extends('layouts.app')
 
-@section('title', 'Política de Troca — ' . config('app.name'))
+@section('title', 'Trocas e Devoluções - ' . config('app.name'))
 
 @section('content')
 <section class="bg-[#f9f6f3] border-b border-gray-200 py-12">
     <div class="max-w-[1200px] mx-auto px-4 lg:px-8">
-        <p class="text-[11px] tracking-[.22em] text-muted uppercase mb-3">Institucional</p>
-        <h1 class="title-elegant text-ink" style="font-size:clamp(1.8rem,4vw,3rem)">Política de Troca</h1>
+        <p class="text-[11px] tracking-[.22em] text-muted uppercase mb-3">Ajuda</p>
+        <h1 class="title-elegant text-ink" style="font-size:clamp(1.8rem,4vw,3rem)">Trocas e Devoluções</h1>
         <p class="text-sm text-muted mt-4">Última atualização: {{ now()->format('d/m/Y') }}</p>
     </div>
 </section>
 
 <section class="max-w-[1200px] mx-auto px-4 lg:px-8 py-12 space-y-8 text-muted leading-relaxed">
-    <p>Confira abaixo as regras da nossa política de troca. No momento, não realizamos devolução de dinheiro. A troca é feita somente por outro produto disponível na loja e segue as condições descritas nesta página.</p>
+    <p>Confira as condições para solicitar troca ou devolução de peças, capacetes, vestuário e acessórios comprados na Moto Acessórios.</p>
 
     <div>
-        <h2 class="text-xl text-ink font-semibold mb-3">1. Condições gerais para troca</h2>
+        <h2 class="text-xl text-ink font-semibold mb-3">1. Prazo para solicitar</h2>
+        <p>Você pode solicitar troca ou devolução em até 7 dias corridos após o recebimento do pedido. Para produtos com defeito de fabricação, entre em contato informando o problema e imagens do item para análise.</p>
+    </div>
+
+    <div>
+        <h2 class="text-xl text-ink font-semibold mb-3">2. Condições do produto</h2>
         <ul class="list-disc pl-5 space-y-1">
-            <li>Realizamos trocas apenas de peças em ótimas condições, sem sinais de uso, manchas ou odores, incluindo perfume, desodorante ou qualquer outro tipo de fragrância.</li>
-            <li>Todas as despesas de envio ou transporte da troca são de responsabilidade do cliente.</li>
-            <li>A troca é feita somente por outro produto disponível na loja.</li>
-            <li>É permitida apenas uma troca por compra.</li>
+            <li>O produto deve estar sem sinais de uso, instalação, lavagem, queda, risco, odor ou alteração.</li>
+            <li>Embalagem, etiquetas, manuais, acessórios e nota fiscal devem acompanhar o item.</li>
+            <li>Peças elétricas, eletrônicas ou instaladas dependem de análise técnica para aprovação da troca.</li>
+            <li>Capacetes e vestuário devem retornar limpos, sem marcas de uso e com etiquetas preservadas.</li>
         </ul>
     </div>
 
     <div>
-        <h2 class="text-xl text-ink font-semibold mb-3">2. Prazo para solicitar a troca</h2>
-        <p>A solicitação de troca deve ser feita em até 7 dias após o recebimento da peça. Após a solicitação dentro desse prazo, a troca pode ser realizada em até 30 dias após o recebimento.</p>
+        <h2 class="text-xl text-ink font-semibold mb-3">3. Produto incorreto ou avariado</h2>
+        <p>Se você recebeu um produto diferente do comprado ou com avaria de transporte, avise nosso atendimento assim que identificar o problema. Envie número do pedido, fotos da embalagem e fotos do produto.</p>
     </div>
 
     <div>
-        <h2 class="text-xl text-ink font-semibold mb-3">3. O que não trocamos</h2>
-        <ul class="list-disc pl-5 space-y-1">
-            <li>Peças brancas não têm troca.</li>
-            <li>Produtos em promoção não têm troca.</li>
-            <li>Peças com sinais de uso, manchas, lavagem, ajustes ou odores não serão aceitas.</li>
-        </ul>
+        <h2 class="text-xl text-ink font-semibold mb-3">4. Frete de troca</h2>
+        <p>Quando houver erro no envio ou defeito confirmado, orientamos o processo e assumimos o frete conforme análise. Em trocas por tamanho, modelo, cor ou arrependimento, os custos de envio podem ser de responsabilidade do cliente.</p>
     </div>
 
     <div>
-        <h2 class="text-xl text-ink font-semibold mb-3">4. Forma da troca</h2>
-        <p>Não realizamos devolução de dinheiro. Quando a troca for aprovada, a cliente poderá trocar apenas por outro produto disponível na loja no momento do atendimento.</p>
-    </div>
-
-    <div>
-        <h2 class="text-xl text-ink font-semibold mb-3">5. Custos de envio</h2>
-        <p>Todas as despesas de envio, postagem ou transporte relacionadas à troca são de responsabilidade da cliente.</p>
+        <h2 class="text-xl text-ink font-semibold mb-3">5. Reembolso ou crédito</h2>
+        <p>Após o recebimento e aprovação da análise, o valor pode ser devolvido pelo mesmo meio de pagamento ou convertido em crédito para uma nova compra, conforme combinado no atendimento.</p>
     </div>
 
     <div>
         <h2 class="text-xl text-ink font-semibold mb-3">6. Como solicitar</h2>
-        <p>Envie e-mail para <a href="mailto:{{ config('app.contact.email') }}" class="underline hover:text-ink">{{ config('app.contact.email') }}</a> com número do pedido, nome completo e motivo da solicitação. Nossa equipe vai orientar os próximos passos da troca.</p>
+        <p>Envie e-mail para <a href="mailto:{{ config('app.contact.email') }}" class="underline hover:text-ink">{{ config('app.contact.email') }}</a> ou chame no WhatsApp com número do pedido, nome completo, motivo da solicitação e fotos do produto.</p>
     </div>
 </section>
 @endsection

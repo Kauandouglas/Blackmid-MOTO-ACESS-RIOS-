@@ -33,9 +33,9 @@
     <div class="relative min-h-screen grid place-items-center p-4 lg:p-8">
         <div class="grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.1fr_520px]">
             <div class="hidden lg:block">
-                <p class="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Origem Brasileira</p>
-                <h1 class="mt-5 max-w-xl text-6xl font-extrabold leading-[1.02] text-ink">Um admin bonito de verdade para sua loja.</h1>
-                <p class="mt-5 max-w-lg text-lg leading-8 text-slate-500">Visual limpo, hierarquia forte e uma experiência parecida com plataformas modernas de e-commerce.</p>
+                <p class="text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Moto Acessórios</p>
+                <h1 class="mt-5 max-w-xl text-6xl font-extrabold leading-[1.02] text-ink">Painel para gerenciar sua loja de moto peças.</h1>
+                <p class="mt-5 max-w-lg text-lg leading-8 text-slate-500">Produtos, pedidos, categorias, Bling e configurações em uma área administrativa simples de operar.</p>
 
                 <div class="mt-10 grid max-w-xl gap-4 sm:grid-cols-3">
                     <div class="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg shadow-blue-100/50 backdrop-blur">

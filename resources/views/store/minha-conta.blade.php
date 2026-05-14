@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Minha Conta — ' . config('app.name'))
+@section('title', 'Minha Conta - ' . config('app.name'))
 
 @section('content')
 <section class="bg-[#f9f6f3] border-b border-gray-200 py-12">
@@ -11,12 +11,10 @@
 </section>
 
 <section class="max-w-[900px] mx-auto px-4 lg:px-8 py-12">
-
     @if (session('success'))
         <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-800 text-sm rounded">{{ session('success') }}</div>
     @endif
 
-    {{-- Cabeçalho do usuário --}}
     <div class="flex items-center justify-between mb-8">
         <div>
             <h2 class="text-xl font-semibold text-ink">Olá, {{ $user->name }}!</h2>
@@ -30,13 +28,12 @@
         </form>
     </div>
 
-    {{-- Histórico de pedidos --}}
     <h3 class="text-xs font-bold tracking-widest text-muted uppercase mb-4">Meus Pedidos</h3>
 
     @if ($orders->isEmpty())
         <div class="bg-white border border-gray-200 rounded-xl p-8 text-center">
             <p class="text-muted mb-4">Você ainda não realizou nenhum pedido.</p>
-            <a href="{{ route('store.index') }}" class="inline-flex px-6 py-3 bg-ink text-white text-sm tracking-[.14em] uppercase hover:opacity-90 transition">Explorar Coleção</a>
+            <a href="{{ route('store.index') }}" class="inline-flex px-6 py-3 bg-ink text-white text-sm tracking-[.14em] uppercase hover:opacity-90 transition">Ver produtos</a>
         </div>
     @else
         <div class="space-y-4">

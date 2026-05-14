@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Blog - Origem Brasileira')
+@section('title', 'Blog - ' . config('app.name'))
 
 @section('content')
 <section class="max-w-[1400px] mx-auto px-4 lg:px-8 py-10 lg:py-14">
     <div class="max-w-3xl mb-10">
         <p class="text-xs uppercase tracking-[.18em] text-muted mb-3">Blog</p>
-        <h1 class="font-display text-4xl lg:text-6xl text-ink leading-none mb-4">Conteudos para clientes no Brasil</h1>
-        <p class="text-muted text-base leading-relaxed">Estilo, rotina, tendencias e dicas praticas para montar um guarda-roupa elegante, funcional e conectado com a sua identidade.</p>
+        <h1 class="font-display text-4xl lg:text-6xl text-ink leading-none mb-4">Conteúdos para motociclistas</h1>
+        <p class="text-muted text-base leading-relaxed">Dicas de manutenção, escolha de acessórios, segurança, capacetes, vestuário e cuidados para rodar melhor todos os dias.</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">

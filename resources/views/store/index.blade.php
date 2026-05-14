@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Moto Acessorios - Equipamentos e pecas para motociclistas')
+@section('title', 'Moto Acessórios - Equipamentos e peças para motociclistas')
 @section('bodyClass', 'page-home')
 @section('content')
 @php

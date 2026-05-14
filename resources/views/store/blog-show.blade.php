@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $post['title'] . ' - Blog Origem Brasileira')
+@section('title', $post['title'] . ' - Blog ' . config('app.name'))
 
 @section('content')
 <style>
@@ -45,6 +45,7 @@
         margin: 1rem 0;
     }
 </style>
+
 <section class="max-w-[1100px] mx-auto px-4 lg:px-8 py-10 lg:py-14">
     <nav class="flex items-center gap-2 text-xs text-muted mb-8 tracking-wide">
         <a href="{{ route('store.index') }}" class="hover:text-ink transition">Loja</a>
