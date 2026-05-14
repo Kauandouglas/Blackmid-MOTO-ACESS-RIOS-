@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Bodoni Moda', serif;
+
+    --color-brand-light: #f5f0eb;
+    --color-brand: #b4a99a;
+    --color-brand-dark: #8a7e6f;
+    --color-ink: #1e1e2c;
+    --color-muted: #6e6e80;
+    --color-cream: #f7f5f0;
+    --color-beige: #eae5db;
+}
+
+/* WhatsApp button pulse */
+@keyframes wa-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+    50% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); }
+}
+.wa-pulse { animation: wa-pulse 2s infinite; }
+
+@utility title-elegant {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-wrap: balance;
+}

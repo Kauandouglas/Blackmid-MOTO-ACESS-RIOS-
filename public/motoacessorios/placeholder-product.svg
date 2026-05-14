@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">Produto sem imagem</title>
+  <desc id="desc">Placeholder neutro para produtos sem foto cadastrada.</desc>
+  <rect width="900" height="900" fill="#f4f6f8"/>
+  <rect x="110" y="140" width="680" height="620" rx="28" fill="#ffffff" stroke="#d8dee6" stroke-width="8"/>
+  <path d="M250 622h400L536 476l-78 96-58-70-150 120Z" fill="#dbe3ec"/>
+  <circle cx="330" cy="328" r="58" fill="#dbe3ec"/>
+  <path d="M292 706h316" stroke="#aab6c4" stroke-width="20" stroke-linecap="round"/>
+  <text x="450" y="824" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#64748b">SEM IMAGEM</text>
+</svg>
