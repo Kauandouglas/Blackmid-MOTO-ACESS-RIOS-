@@ -44,8 +44,6 @@
                 if (linkType === 'page') {
                     const categoryId = document.getElementById('pageSelect').value;
                     urlField.value = categoryId || '';
-                } else if (linkType === 'blog') {
-                    urlField.value = 'blog';
                 } else if (linkType === 'custom') {
                     urlField.value = document.getElementById('customUrlInput').value;
                 }
@@ -68,8 +66,6 @@
                 if (linkType === 'page') {
                     const categoryId = document.getElementById('pageSelectEdit').value;
                     urlField.value = categoryId || '';
-                } else if (linkType === 'blog') {
-                    urlField.value = 'blog';
                 } else if (linkType === 'custom') {
                     urlField.value = document.getElementById('customUrlInputEdit').value;
                 }
@@ -211,7 +207,6 @@
                     <label class="block text-sm font-semibold text-slate-800 mb-2">Leva a</label>
                     <select class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" name="link_type" id="linkType" onchange="toggleLinkOptions()">
                         <option value="page">📄 Página</option>
-                        <option value="blog">📝 Blog</option>
                         <option value="custom">🔗 URL Personalizada</option>
                     </select>
                 </div>
@@ -270,11 +265,9 @@
                         <select class="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" name="link_type" id="linkTypeEdit" onchange="toggleLinkOptionsEdit()">
                             @php
                                 $linkType = 'page';
-                                if($selectedItem->url === 'blog') $linkType = 'blog';
-                                elseif($selectedItem->url && $selectedItem->url !== 'blog') $linkType = 'custom';
+                                if($selectedItem->url) $linkType = 'custom';
                             @endphp
                             <option value="page" {{ $linkType === 'page' ? 'selected' : '' }}>📄 Página</option>
-                            <option value="blog" {{ $linkType === 'blog' ? 'selected' : '' }}>📝 Blog</option>
                             <option value="custom" {{ $linkType === 'custom' ? 'selected' : '' }}>🔗 URL Personalizada</option>
                         </select>
                     </div>

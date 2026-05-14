@@ -117,14 +117,12 @@ class NavigationSeeder extends Seeder
             $aSort += 10;
         }
 
-        // 5. BLOG
-        MenuItem::create([
-            'menu_id' => $menu->id,
-            'title' => 'BLOG',
-            'slug' => 'blog',
-            'url' => '/blog',
-            'sort_order' => 50,
-            'is_active' => true,
-        ]);
+        MenuItem::query()
+            ->where('menu_id', $menu->id)
+            ->where(function ($query) {
+                $query->where('slug', 'blog')
+                    ->orWhere('url', '/blog');
+            })
+            ->delete();
     }
 }

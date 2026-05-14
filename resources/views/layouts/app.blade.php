@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $title ?? config('app.name', 'Moto Acessórios'))</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -172,7 +174,6 @@
                 <h4>INSTITUCIONAL</h4>
                 <ul>
                     <li><a href="{{ route('store.sobre') }}">Sobre nós</a></li>
-                    <li><a href="{{ route('store.blog') }}">Blog</a></li>
                     <li><a href="{{ route('store.contato') }}">Fale Conosco</a></li>
                 </ul>
             </div>

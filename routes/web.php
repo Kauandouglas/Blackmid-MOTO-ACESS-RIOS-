@@ -8,7 +8,6 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminBlingAuthController;
 use App\Http\Controllers\Admin\AdminCategoryController;
-use App\Http\Controllers\Admin\AdminBlogPostController;
 use App\Http\Controllers\Admin\AdminBlingProductImportController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminMenuController;
@@ -25,8 +24,6 @@ Route::get('/', [StoreController::class, 'index'])->name('store.index');
 Route::get('/product/{slug}', [StoreController::class, 'show'])->name('store.show');
 Route::get('/busca/sugestoes', [StoreController::class, 'searchSuggestions'])->name('store.search.suggestions');
 Route::get('/busca', [StoreController::class, 'search'])->name('store.search');
-Route::get('/blog', [StoreController::class, 'blog'])->name('store.blog');
-Route::get('/blog/{slug}', [StoreController::class, 'blogShow'])->name('store.blog.show');
 Route::get('/sobre-nos', fn () => view('store.sobre'))->name('store.sobre');
 Route::get('/politica-de-privacidade', fn () => view('store.politica-privacidade'))->name('store.privacidade');
 Route::get('/trocas-e-devolucoes', fn () => view('store.trocas-devolucoes'))->name('store.trocas');
@@ -75,8 +72,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 		Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
 		Route::resource('categorias', AdminCategoryController::class)->except('show');
-		Route::resource('blogs', AdminBlogPostController::class)->except('show');
-		Route::post('/blogs/upload-image', [AdminBlogPostController::class, 'uploadImage'])->name('blogs.upload-image');
 		Route::get('/bling/conectar', [AdminBlingAuthController::class, 'show'])->name('bling.auth');
 		Route::post('/bling/conectar', [AdminBlingAuthController::class, 'connect'])->name('bling.connect');
 		Route::get('/bling/callback', [AdminBlingAuthController::class, 'callback'])->name('bling.callback');

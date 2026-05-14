@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Database\Seeders\BlogPostSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,7 +15,6 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             StoreSeeder::class,
             NavigationSeeder::class,
-            BlogPostSeeder::class,
         ]);
     }
 }
