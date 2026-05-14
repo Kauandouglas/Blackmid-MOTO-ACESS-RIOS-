@@ -221,6 +221,198 @@
 .auth-copy {
   background: linear-gradient(135deg, #080b0f 0%, #111820 60%, #062d16 100%);
 }
+
+.institutional-hero {
+  padding: 48px 0 28px;
+  background: radial-gradient(circle at 75% 0, rgba(0, 214, 79, .12), transparent 34%);
+}
+
+.institutional-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.institutional-hero h1,
+.institutional-section-title {
+  font-family: Rajdhani, sans-serif;
+  color: var(--text);
+  text-transform: uppercase;
+  line-height: .95;
+}
+
+.institutional-hero h1 {
+  font-size: clamp(38px, 5vw, 66px);
+  margin-bottom: 10px;
+}
+
+.institutional-hero p,
+.institutional-card p,
+.institutional-list li,
+.institutional-panel p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.institutional-summary {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 22px;
+  display: grid;
+  gap: 14px;
+}
+
+.institutional-summary__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.institutional-summary__item i {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(0, 214, 79, .12);
+  color: var(--green);
+}
+
+.institutional-section {
+  padding: 24px 0;
+}
+
+.institutional-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.institutional-grid--two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.institutional-layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.institutional-card,
+.institutional-panel {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 22px;
+}
+
+.institutional-card > i {
+  color: var(--green);
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.institutional-card h2,
+.institutional-card h3,
+.institutional-panel h2,
+.institutional-panel h3 {
+  font-family: Rajdhani, sans-serif;
+  color: var(--text);
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.institutional-card h2,
+.institutional-panel h2 {
+  font-size: 28px;
+}
+
+.institutional-card h3,
+.institutional-panel h3 {
+  font-size: 23px;
+}
+
+.institutional-list {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.institutional-list li {
+  display: flex;
+  gap: 10px;
+}
+
+.institutional-list i {
+  color: var(--green);
+  margin-top: 4px;
+}
+
+.institutional-step {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.institutional-step__number {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #08100c;
+  border: 1px solid rgba(0, 214, 79, .25);
+  color: var(--green);
+  font-weight: 900;
+}
+
+.institutional-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.institutional-actions .btn {
+  justify-content: center;
+}
+
+.institutional-panel--accent {
+  background: linear-gradient(135deg, #080b0f 0%, #111820 58%, #062d16 100%);
+}
+
+.institutional-note {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.institutional-small-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.institutional-mini {
+  background: #0b0f13;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.institutional-mini strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: 4px;
+}
 .auth-grid {
   grid-template-columns: 1fr minmax(320px, 450px);
 }
@@ -1755,6 +1947,11 @@ body.lightbox-open {
   .auth-grid,
   .support-grid,
   .contact-info__grid,
+  .institutional-hero__inner,
+  .institutional-grid,
+  .institutional-grid--two,
+  .institutional-layout,
+  .institutional-small-grid,
   .cart-grid {
     grid-template-columns: 1fr;
   }
