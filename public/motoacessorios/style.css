@@ -2138,15 +2138,16 @@ img {
 
 .logo-img {
   display: block;
-  width: auto;
-  height: 74px;
-  max-width: 220px;
+  width: 70px;
+  height: auto;
+  max-width: 70px;
   object-fit: contain;
 }
 
 .logo-img--footer {
-  height: 86px;
-  max-width: 250px;
+  width: 70px;
+  height: auto;
+  max-width: 70px;
 }
 
 .logo-mark {
@@ -3183,8 +3184,9 @@ img {
   }
 
   .logo-img {
-    height: 58px;
-    max-width: 170px;
+    width: 70px;
+    height: auto;
+    max-width: 70px;
   }
 
   .logo-mark {
@@ -3204,8 +3206,9 @@ img {
   }
 
   .footer-brand .logo-img {
-    height: 74px;
-    max-width: 220px;
+    width: 70px;
+    height: auto;
+    max-width: 70px;
   }
 
   .main-nav {
@@ -3707,8 +3710,9 @@ img {
   }
 
   .logo-img {
-    height: 48px;
-    max-width: 145px;
+    width: 70px;
+    height: auto;
+    max-width: 70px;
   }
 
   .logo-text {
