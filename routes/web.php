@@ -30,6 +30,7 @@ Route::get('/blog/{slug}', [StoreController::class, 'blogShow'])->name('store.bl
 Route::get('/sobre-nos', fn () => view('store.sobre'))->name('store.sobre');
 Route::get('/politica-de-privacidade', fn () => view('store.politica-privacidade'))->name('store.privacidade');
 Route::get('/trocas-e-devolucoes', fn () => view('store.trocas-devolucoes'))->name('store.trocas');
+Route::redirect('/trocas-e-devolucoesm', '/trocas-e-devolucoes', 301);
 Route::get('/fale-conosco', fn () => view('store.fale-conosco'))->name('store.contato');
 Route::get('/minha-conta', [CustomerAuthController::class, 'account'])->name('store.minha-conta');
 
