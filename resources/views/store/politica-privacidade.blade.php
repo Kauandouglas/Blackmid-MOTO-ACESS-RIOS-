@@ -9,6 +9,7 @@
             <span class="eyebrow">Institucional</span>
             <h1>Política de privacidade</h1>
             <p>Resumo claro de como usamos seus dados para compra, pagamento, entrega, segurança e atendimento na Moto Acessórios.</p>
+            <p>{{ config('app.company.legal_name') }} | CNPJ: {{ config('app.company.cnpj') }}</p>
         </div>
         <a href="mailto:{{ config('app.contact.email') }}" class="btn btn--yellow">
             <i class="fa-regular fa-envelope"></i> FALE CONOSCO

@@ -129,4 +129,9 @@ return [
         'instagram_url' => env('APP_CONTACT_INSTAGRAM_URL', 'https://www.instagram.com/_motoacessorios'),
     ],
 
+    'company' => [
+        'legal_name' => env('APP_COMPANY_LEGAL_NAME', 'DoValle Importação & Exportação Ltda'),
+        'cnpj' => env('APP_COMPANY_CNPJ', '10.660.077/0001-41'),
+    ],
+
 ];

@@ -214,8 +214,8 @@
 
         <div class="footer-bottom">
             <div class="container footer-bottom-wrap">
-                <p>© {{ now()->year }} Moto Acessórios. Todos os direitos reservados.</p>
-                <p>CNPJ: 00.000.000/0001-00 | Curitiba - PR</p>
+                <p>© {{ now()->year }} {{ config('app.name', 'Moto Acessórios') }}. Todos os direitos reservados.</p>
+                <p>{{ config('app.company.legal_name') }} | CNPJ: {{ config('app.company.cnpj') }}</p>
             </div>
         </div>
     </footer>
