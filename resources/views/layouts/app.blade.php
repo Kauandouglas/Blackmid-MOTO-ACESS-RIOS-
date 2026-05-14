@@ -52,8 +52,7 @@
     <header class="header">
         <div class="container header-main">
             <a class="logo" href="{{ route('store.index') }}">
-                <span class="logo-mark"><i class="fa-solid fa-motorcycle"></i></span>
-                <span class="logo-text">MOTO <b>ACESSÓRIOS</b></span>
+                <img class="logo-img" src="{{ asset('logo.png') }}" alt="{{ config('app.name', 'Moto Acessórios') }}">
             </a>
 
             <form class="search" action="{{ route('store.search') }}" method="GET" data-search-suggest-url="{{ route('store.search.suggestions') }}">
@@ -161,8 +160,7 @@
         <div class="container footer-grid">
             <div class="footer-brand">
                 <a class="logo" href="{{ route('store.index') }}">
-                    <span class="logo-mark"><i class="fa-solid fa-motorcycle"></i></span>
-                    <span class="logo-text">MOTO <b>ACESSÓRIOS</b></span>
+                    <img class="logo-img logo-img--footer" src="{{ asset('logo.png') }}" alt="{{ config('app.name', 'Moto Acessórios') }}">
                 </a>
                 <p>Sua loja virtual de peças, equipamentos e acessórios para motociclistas.</p>
                 <div class="footer-social">

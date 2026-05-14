@@ -2136,6 +2136,19 @@ img {
   line-height: 1;
 }
 
+.logo-img {
+  display: block;
+  width: auto;
+  height: 74px;
+  max-width: 220px;
+  object-fit: contain;
+}
+
+.logo-img--footer {
+  height: 86px;
+  max-width: 250px;
+}
+
 .logo-mark {
   color: var(--green);
   font-size: 27px;
@@ -3169,6 +3182,11 @@ img {
     gap: 6px;
   }
 
+  .logo-img {
+    height: 58px;
+    max-width: 170px;
+  }
+
   .logo-mark {
     font-size: 20px;
   }
@@ -3183,6 +3201,11 @@ img {
     transform: none;
     display: inline-flex;
     margin-bottom: 10px;
+  }
+
+  .footer-brand .logo-img {
+    height: 74px;
+    max-width: 220px;
   }
 
   .main-nav {
@@ -3681,6 +3704,11 @@ img {
 
   .logo {
     font-size: 25px;
+  }
+
+  .logo-img {
+    height: 48px;
+    max-width: 145px;
   }
 
   .logo-text {

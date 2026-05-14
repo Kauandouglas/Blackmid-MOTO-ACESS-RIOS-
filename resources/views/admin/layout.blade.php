@@ -147,7 +147,7 @@
         {{-- Logo + Close --}}
         <div class="flex items-center justify-between border-b border-line px-5 py-4">
             <a href="/" target="_blank" class="block">
-                <img src="/logo.avif" alt="Moto Acessórios" class="h-10 w-auto">
+                <img src="/logo.png" alt="Moto Acessórios" class="h-12 w-auto object-contain">
             </a>
             <button type="button" onclick="toggleSidebar()" class="rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition lg:hidden" aria-label="Fechar menu">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
