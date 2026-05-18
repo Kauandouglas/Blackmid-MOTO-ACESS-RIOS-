@@ -106,7 +106,14 @@ class AdminBlingProductImportController extends Controller
     {
         $name = $payload['name'] ?: 'Produto Bling '.$payload['bling_id'];
         $stock = (int) $payload['stock'];
-        $image = $payload['image'] ? $images->downloadAndStore($payload['image']) : null;
+        $downloadedImages = collect($payload['images'] ?? [])
+            ->whenEmpty(fn ($collection) => collect([$payload['image'] ?? null]))
+            ->filter()
+            ->unique()
+            ->map(fn (string $imageUrl) => $images->downloadAndStore($imageUrl))
+            ->filter()
+            ->values();
+        $image = $downloadedImages->first();
 
         $attributes = [
             'category_id' => $categoryId,
@@ -130,10 +137,15 @@ class AdminBlingProductImportController extends Controller
         ];
 
         if ($image) {
-            $images->delete($existingProduct?->image);
+            foreach (array_merge([$existingProduct?->image], $existingProduct?->gallery ?? []) as $existingImage) {
+                $images->delete($existingImage);
+            }
+
             $attributes['image'] = $image;
+            $attributes['gallery'] = $downloadedImages->slice(1)->values()->all();
         } elseif (! $existingProduct) {
             $attributes['image'] = null;
+            $attributes['gallery'] = [];
         }
 
         return $attributes;

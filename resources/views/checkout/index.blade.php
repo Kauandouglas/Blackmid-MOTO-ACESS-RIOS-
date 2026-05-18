@@ -209,7 +209,7 @@
                             <span class="checkout-option__icon"><i class="fa-solid fa-wallet"></i></span>
                             <span class="checkout-option__body">
                                 <strong>Mercado Pago</strong>
-                                <small>Cartao, Pix e boleto</small>
+                                <small>Cartao e Pix</small>
                             </span>
                             <b>Seguro</b>
                         </label>

@@ -32,7 +32,7 @@
     <div class="container hero-grid">
         <div class="hero-copy">
             <h1>EQUIPE-SE PARA A <span>ESTRADA</span></h1>
-            <p>Os melhores acessorios para sua moto com qualidade, seguranca e preco justo.</p>
+            <p>Os melhores acessórios para sua moto com qualidade, segurança e preço justo.</p>
             <div class="hero-cta">
                 <a href="#produtos" class="btn btn-green"><i class="fa-solid fa-bag-shopping"></i> VER PRODUTOS</a>
                 <a href="{{ config('app.contact.whatsapp_url', '#') }}" class="btn btn-outline"><i class="fa-brands fa-whatsapp"></i> CHAMAR NO WHATSAPP</a>
@@ -46,10 +46,10 @@
 
 <section class="benefits">
     <div class="container benefits-grid">
-        <article><i class="fa-solid fa-truck-fast"></i><div><h4>Envio rapido</h4><p>Postamos no mesmo dia</p></div></article>
-        <article><i class="fa-solid fa-arrows-rotate"></i><div><h4>Ate 2x sem juros</h4><p>Parcele com seguranca</p></div></article>
+        <article><i class="fa-solid fa-truck-fast"></i><div><h4>Envio rápido</h4><p>Pedidos realizados até as 14h são enviados no mesmo dia</p></div></article>
+        <article><i class="fa-solid fa-arrows-rotate"></i><div><h4>Até 2x sem juros</h4><p>Parcele com segurança</p></div></article>
         <article><i class="fa-solid fa-lock"></i><div><h4>Compra segura</h4><p>Seus dados protegidos</p></div></article>
-        <article><i class="fa-solid fa-percent"></i><div><h4>5% OFF no PIX</h4><p>Desconto automatico</p></div></article>
+        <article><i class="fa-solid fa-percent"></i><div><h4>5% OFF no PIX</h4><p>Desconto automático</p></div></article>
     </div>
 </section>
 
@@ -74,7 +74,7 @@
                 </div>
             </div>
 
-            <button class="categories-arrow categories-next" type="button" aria-label="Proxima categoria">
+            <button class="categories-arrow categories-next" type="button" aria-label="Próxima categoria">
                 <i class="fa-solid fa-chevron-right"></i>
             </button>
         </div>
@@ -112,7 +112,7 @@
         <article>
             <div class="promo-copy">
                 <h3>PRECISOU? <span>FALE CONOSCO!</span></h3>
-                <p>Atendimento rapido pelo WhatsApp</p>
+                <p>Atendimento rápido pelo WhatsApp</p>
             </div>
             <div class="promo-icon" aria-hidden="true"><i class="fa-brands fa-whatsapp"></i></div>
         </article>

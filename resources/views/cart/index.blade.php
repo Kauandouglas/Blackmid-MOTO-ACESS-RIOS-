@@ -116,7 +116,7 @@
 
                 <div class="summary-security">
                     <span><i class="fa-solid fa-lock"></i> Checkout seguro</span>
-                    <span><i class="fa-brands fa-pix"></i> Pix, cartao e boleto</span>
+                    <span><i class="fa-brands fa-pix"></i> Pix e cartao</span>
                 </div>
             </aside>
         </div>
