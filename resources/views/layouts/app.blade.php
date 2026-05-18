@@ -204,7 +204,6 @@
                     <i class="fa-brands fa-cc-mastercard"></i>
                     <i class="fa-brands fa-cc-amex"></i>
                     <i class="fa-brands fa-pix"></i>
-                    <i class="fa-solid fa-barcode"></i>
                 </div>
                 <div class="footer-seals">
                     <span><i class="fa-solid fa-shield-halved"></i> Site protegido</span>
