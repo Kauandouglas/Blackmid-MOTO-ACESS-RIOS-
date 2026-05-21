@@ -83,7 +83,6 @@ class MercadoPagoPaymentService
             'notification_url' => route('webhooks.mercadopago'),
             'payment_methods'   => [
                 'excluded_payment_types' => [
-                    ['id' => 'account_money'],
                     ['id' => 'atm'],
                     ['id' => 'ticket'],
                 ],

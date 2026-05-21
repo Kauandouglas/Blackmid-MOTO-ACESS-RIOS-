@@ -22,7 +22,7 @@ const searchSuggestions = searchForm?.querySelector('[data-search-suggestions]')
 
 const megaData = {};
 
-const parseJsonResponse = (response) => response.text().then((text) => {
+const parseStoreJsonResponse = (response) => response.text().then((text) => {
   if (!text.trim()) return {};
 
   try {
@@ -115,7 +115,7 @@ if (searchForm && searchInput && searchSuggestions) {
       headers: { 'Accept': 'application/json' },
       signal: searchController.signal
     })
-      .then(parseJsonResponse)
+      .then(parseStoreJsonResponse)
       .then(data => renderSuggestions(data.products || []))
       .catch(error => {
         if (error.name !== 'AbortError') hideSuggestions();

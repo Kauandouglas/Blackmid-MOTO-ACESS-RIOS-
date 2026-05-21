@@ -109,6 +109,69 @@ class CheckoutController extends Controller
         ]);
     }
 
+    public function captureCart(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'customer_first_name' => ['nullable', 'string', 'max:80'],
+            'customer_last_name'  => ['nullable', 'string', 'max:80'],
+            'customer_email'      => ['required', 'email', 'max:120'],
+            'customer_phone'      => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $cart = $this->normalizeCart();
+        if (empty($cart)) {
+            return response()->json(['success' => true, 'captured' => false]);
+        }
+
+        $productIds = collect($cart)->pluck('product_id')->unique()->all();
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+        $items = [];
+        $subtotal = 0;
+        $itemsCount = 0;
+
+        foreach ($cart as $entry) {
+            $product = $products->get((int) ($entry['product_id'] ?? 0));
+            if (! $product) {
+                continue;
+            }
+
+            $quantity = (int) ($entry['quantity'] ?? 0);
+            $lineTotal = (float) $product->price * $quantity;
+            $subtotal += $lineTotal;
+            $itemsCount += $quantity;
+
+            $items[] = [
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'quantity' => $quantity,
+                'size' => $entry['size'] ?? null,
+                'color' => $entry['color'] ?? null,
+                'unit_price' => (float) $product->price,
+                'line_total' => $lineTotal,
+                'image' => $product->image,
+            ];
+        }
+
+        AbandonedCart::query()->updateOrCreate(
+            [
+                'session_id' => session()->getId(),
+                'converted_at' => null,
+            ],
+            [
+                'customer_first_name' => $data['customer_first_name'] ?? null,
+                'customer_last_name' => $data['customer_last_name'] ?? null,
+                'customer_email' => $data['customer_email'],
+                'customer_phone' => $data['customer_phone'] ?? null,
+                'cart_items' => $items,
+                'subtotal' => $subtotal,
+                'items_count' => $itemsCount,
+            ],
+        );
+
+        return response()->json(['success' => true, 'captured' => true]);
+    }
+
     public function process(Request $request): JsonResponse|RedirectResponse
     {
         $wantsJson = $request->expectsJson();
