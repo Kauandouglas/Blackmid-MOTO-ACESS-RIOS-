@@ -53,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
             // Ignora indisponibilidade temporaria de banco para nao quebrar boot.
         }
 
-        if ((bool) env('FORCE_HTTPS', false)) {
+        if (config('app.force_https')) {
             URL::forceScheme('https');
         }
 

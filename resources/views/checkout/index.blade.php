@@ -332,6 +332,18 @@ function money(value) {
     return 'R$ ' + Number(value || 0).toFixed(2).replace('.', ',');
 }
 
+function parseJsonResponse(response) {
+    return response.text().then(function (text) {
+        if (!text.trim()) return {};
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            throw new Error('Resposta invalida do servidor.');
+        }
+    });
+}
+
 function trackAddPaymentInfo(paymentMethod) {
     if (!PIXEL_ENABLED || typeof fbq !== 'function') return;
 
@@ -469,7 +481,7 @@ function quoteShipping() {
         }),
     })
         .then(function (response) {
-            return response.json().then(function (data) {
+            return parseJsonResponse(response).then(function (data) {
                 if (!response.ok) throw new Error(data.message || 'Nao foi possivel calcular o frete.');
                 return data;
             });
@@ -580,7 +592,7 @@ function lookupCep(force) {
     lookupCep.lastCep = cep;
 
     fetch('https://viacep.com.br/ws/' + cep + '/json/')
-        .then(function (response) { return response.json(); })
+        .then(parseJsonResponse)
         .then(function (data) {
             if (data.erro) throw new Error('CEP nao encontrado.');
 
@@ -676,7 +688,7 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
             body: new FormData(checkoutForm),
         })
             .then(function (response) {
-                return response.json().then(function (data) {
+                return parseJsonResponse(response).then(function (data) {
                     if (!response.ok) {
                         if (data.errors) {
                             var messages = [];

@@ -22,6 +22,16 @@ const searchSuggestions = searchForm?.querySelector('[data-search-suggestions]')
 
 const megaData = {};
 
+const parseJsonResponse = (response) => response.text().then((text) => {
+  if (!text.trim()) return {};
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error('Resposta invalida do servidor.');
+  }
+});
+
 let total = 0;
 let megaCurrentProducts = [];
 let megaCurrentSlide = 0;
@@ -105,7 +115,7 @@ if (searchForm && searchInput && searchSuggestions) {
       headers: { 'Accept': 'application/json' },
       signal: searchController.signal
     })
-      .then(response => response.json())
+      .then(parseJsonResponse)
       .then(data => renderSuggestions(data.products || []))
       .catch(error => {
         if (error.name !== 'AbortError') hideSuggestions();

@@ -133,6 +133,18 @@ function money(value) {
     return 'R$ ' + Number(value || 0).toFixed(2).replace('.', ',');
 }
 
+function parseJsonResponse(response) {
+    return response.text().then(function (text) {
+        if (!text.trim()) return {};
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            throw new Error('Resposta invalida do servidor.');
+        }
+    });
+}
+
 function cartFetch(url, body) {
     return fetch(url, {
         method: 'POST',
@@ -143,7 +155,12 @@ function cartFetch(url, body) {
             'X-CSRF-TOKEN': CSRF,
         },
         body: JSON.stringify(body),
-    }).then(function (r) { return r.json(); });
+    }).then(function (response) {
+        return parseJsonResponse(response).then(function (json) {
+            if (!response.ok) throw new Error(json.message || json.error || 'Erro ao atualizar o carrinho.');
+            return json;
+        });
+    });
 }
 
 function changeQty(key, delta, btn) {

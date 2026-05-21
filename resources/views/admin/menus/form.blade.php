@@ -428,7 +428,15 @@
                     },
                     body: JSON.stringify({ groups: collectGroups() }),
                 })
-                    .then((r) => r.json())
+                    .then((response) => response.text().then((text) => {
+                        if (!text.trim()) return {};
+
+                        try {
+                            return JSON.parse(text);
+                        } catch (error) {
+                            throw new Error('Resposta invalida do servidor.');
+                        }
+                    }))
                     .then((json) => {
                         if (!json || !json.success) throw new Error('Erro ao salvar ordenação.');
                         dirty = false;

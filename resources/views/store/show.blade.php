@@ -443,6 +443,18 @@ function showCartToast(message, isError) {
     setTimeout(() => toast.classList.remove('is-visible'), 3200);
 }
 
+function parseJsonResponse(response) {
+    return response.text().then(function (text) {
+        if (!text.trim()) return {};
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            throw new Error('Resposta invalida do servidor.');
+        }
+    });
+}
+
 function trackProductAddToCart(quantity) {
     if (!productPixelEnabled || typeof fbq !== 'function') return;
 
@@ -516,7 +528,13 @@ document.getElementById('addToCartForm')?.addEventListener('submit', (event) => 
         },
         body: new FormData(form),
     })
-        .then((response) => response.json())
+        .then((response) => parseJsonResponse(response).then((json) => {
+            if (!response.ok) {
+                throw new Error(json.message || json.error || 'Erro ao adicionar.');
+            }
+
+            return json;
+        }))
         .then((json) => {
             button.disabled = false;
             button.textContent = originalText;
@@ -530,10 +548,10 @@ document.getElementById('addToCartForm')?.addEventListener('submit', (event) => 
             trackProductAddToCart(form.querySelector('[name="quantity"]')?.value || 1);
             openCartModal(json);
         })
-        .catch(() => {
+        .catch((error) => {
             button.disabled = false;
             button.textContent = originalText;
-            showCartToast('Ocorreu um erro. Tente novamente.', true);
+            showCartToast(error.message || 'Ocorreu um erro. Tente novamente.', true);
         });
 });
 

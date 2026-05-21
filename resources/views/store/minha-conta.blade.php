@@ -3,67 +3,119 @@
 @section('title', 'Minha Conta - ' . config('app.name'))
 
 @section('content')
-<section class="bg-[#f9f6f3] border-b border-gray-200 py-12">
-    <div class="max-w-[1200px] mx-auto px-4 lg:px-8">
-        <p class="text-[11px] tracking-[.22em] text-muted uppercase mb-3">Área do Cliente</p>
-        <h1 class="title-elegant text-ink" style="font-size:clamp(1.8rem,4vw,3rem)">Minha Conta</h1>
-    </div>
-</section>
+@php
+    $statusLabels = [
+        'received' => 'Recebido',
+        'awaiting_payment' => 'Aguardando pagamento',
+        'paid' => 'Pago',
+        'processing' => 'Em preparacao',
+        'shipped' => 'Enviado',
+        'delivered' => 'Entregue',
+        'cancelled' => 'Cancelado',
+        'payment_cancelled' => 'Pagamento cancelado',
+    ];
+@endphp
 
-<section class="max-w-[900px] mx-auto px-4 lg:px-8 py-12">
-    @if (session('success'))
-        <div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-800 text-sm rounded">{{ session('success') }}</div>
-    @endif
+<section class="account-page">
+    <div class="container">
+        <header class="account-title">
+            <div>
+                <span class="eyebrow">Area do Cliente</span>
+                <h1>Minha Conta</h1>
+                <p>Acompanhe seus pedidos, confirme seus dados e fale com o atendimento quando precisar.</p>
+            </div>
 
-    <div class="flex items-center justify-between mb-8">
-        <div>
-            <h2 class="text-xl font-semibold text-ink">Olá, {{ $user->name }}!</h2>
-            <p class="text-sm text-muted mt-0.5">{{ $user->email }}</p>
-        </div>
-        <form method="POST" action="{{ route('auth.logout') }}">
-            @csrf
-            <button type="submit" class="text-xs text-muted hover:text-red-500 border border-gray-300 px-4 py-2 transition tracking-wide uppercase">
-                Sair
-            </button>
-        </form>
-    </div>
+            <form method="POST" action="{{ route('auth.logout') }}">
+                @csrf
+                <button type="submit" class="account-logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Sair</span>
+                </button>
+            </form>
+        </header>
 
-    <h3 class="text-xs font-bold tracking-widest text-muted uppercase mb-4">Meus Pedidos</h3>
+        @if (session('success'))
+            <div class="store-alert store-alert--success account-alert">{{ session('success') }}</div>
+        @endif
 
-    @if ($orders->isEmpty())
-        <div class="bg-white border border-gray-200 rounded-xl p-8 text-center">
-            <p class="text-muted mb-4">Você ainda não realizou nenhum pedido.</p>
-            <a href="{{ route('store.index') }}" class="inline-flex px-6 py-3 bg-ink text-white text-sm tracking-[.14em] uppercase hover:opacity-90 transition">Ver produtos</a>
-        </div>
-    @else
-        <div class="space-y-4">
-            @foreach ($orders as $order)
-            <div class="bg-white border border-gray-200 p-5">
-                <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div class="account-layout">
+            <aside class="account-card account-profile">
+                <span class="account-avatar"><i class="fa-regular fa-user"></i></span>
+                <div>
+                    <span class="account-card__label">Cliente logado</span>
+                    <h2>Ola, {{ $user->name }}!</h2>
+                    <a href="mailto:{{ $user->email }}">{{ $user->email }}</a>
+                </div>
+
+                <div class="account-profile__meta">
                     <div>
-                        <p class="text-sm font-semibold text-ink">#{{ $order->number }}</p>
-                        <p class="text-xs text-muted mt-0.5">{{ $order->created_at->format('d/m/Y') }}</p>
+                        <span>Pedidos</span>
+                        <strong>{{ $orders->count() }}</strong>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm font-semibold text-ink">R$ {{ number_format($order->total, 2, ',', '.') }}</p>
-                        <span class="inline-block mt-1 text-[11px] px-2 py-0.5 rounded-full tracking-wide
-                            @if($order->status === 'delivered') bg-green-100 text-green-800
-                            @elseif($order->status === 'shipped') bg-blue-100 text-blue-800
-                            @elseif($order->status === 'cancelled') bg-red-100 text-red-800
-                            @else bg-gray-100 text-gray-700 @endif
-                        ">
-                            {{ ucfirst($order->status) }}
-                        </span>
+                    <div>
+                        <span>Cadastro</span>
+                        <strong>{{ optional($user->created_at)->format('d/m/Y') ?? '-' }}</strong>
                     </div>
                 </div>
-            </div>
-            @endforeach
-        </div>
-    @endif
 
-    <div class="mt-8 pt-6 border-t border-gray-200 flex flex-wrap gap-3">
-        <a href="{{ route('store.contato') }}" class="inline-flex px-5 py-2.5 bg-ink text-white text-sm tracking-[.12em] uppercase hover:opacity-90 transition">Fale Conosco</a>
-        <a href="{{ route('store.index') }}" class="inline-flex px-5 py-2.5 border border-gray-300 text-sm tracking-[.12em] uppercase text-muted hover:bg-gray-50 transition">Continuar Comprando</a>
+                <div class="account-actions">
+                    <a href="{{ route('store.contato') }}" class="btn btn-outline">
+                        <i class="fa-regular fa-circle-question"></i>
+                        <span>Atendimento</span>
+                    </a>
+                    <a href="{{ route('store.index') }}" class="btn btn-green">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        <span>Comprar</span>
+                    </a>
+                </div>
+            </aside>
+
+            <section class="account-card account-orders">
+                <div class="account-section-head">
+                    <div>
+                        <span class="account-card__label">Historico</span>
+                        <h2>Meus Pedidos</h2>
+                    </div>
+                    @if ($orders->isNotEmpty())
+                        <span class="account-count">{{ $orders->count() }} {{ $orders->count() === 1 ? 'pedido' : 'pedidos' }}</span>
+                    @endif
+                </div>
+
+                @if ($orders->isEmpty())
+                    <div class="account-empty">
+                        <span><i class="fa-solid fa-box-open"></i></span>
+                        <h3>Nenhum pedido por aqui</h3>
+                        <p>Quando voce fizer uma compra, ela aparecera aqui com data, total e status.</p>
+                        <a href="{{ route('store.index') }}" class="btn btn-green">Ver produtos</a>
+                    </div>
+                @else
+                    <div class="account-order-list">
+                        @foreach ($orders as $order)
+                            @php($statusClass = match ($order->status) {
+                                'delivered' => 'account-status--success',
+                                'shipped' => 'account-status--info',
+                                'paid', 'processing', 'received' => 'account-status--active',
+                                'cancelled', 'payment_cancelled' => 'account-status--danger',
+                                default => 'account-status--muted',
+                            })
+                            <article class="account-order">
+                                <div class="account-order__main">
+                                    <span class="account-order__number">#{{ $order->number }}</span>
+                                    <span class="account-order__date">{{ $order->created_at->format('d/m/Y') }}</span>
+                                </div>
+
+                                <div class="account-order__details">
+                                    <span class="account-order__total">R$ {{ number_format((float) $order->total, 2, ',', '.') }}</span>
+                                    <span class="account-status {{ $statusClass }}">
+                                        {{ $statusLabels[$order->status] ?? ucfirst(str_replace('_', ' ', $order->status)) }}
+                                    </span>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
+            </section>
+        </div>
     </div>
 </section>
 @endsection

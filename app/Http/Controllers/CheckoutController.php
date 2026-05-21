@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use Throwable;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -110,6 +111,8 @@ class CheckoutController extends Controller
 
     public function process(Request $request): JsonResponse|RedirectResponse
     {
+        $wantsJson = $request->expectsJson();
+
         $data = $request->validate([
             'customer_first_name' => ['required', 'string', 'max:80'],
             'customer_last_name'  => ['required', 'string', 'max:80'],
@@ -135,7 +138,6 @@ class CheckoutController extends Controller
         $data['customer_document'] = preg_replace('/\D+/', '', (string) $data['customer_document']);
 
         $cart = $this->normalizeCart();
-        $wantsJson = $request->expectsJson();
 
         if (empty($cart)) {
             if ($wantsJson) {
@@ -254,6 +256,21 @@ class CheckoutController extends Controller
                 ->route('cart.index')
                 ->withErrors($exception->errors())
                 ->withInput();
+        } catch (Throwable $exception) {
+            Log::error('Falha ao processar checkout', [
+                'message' => $exception->getMessage(),
+                'exception' => $exception::class,
+            ]);
+
+            if ($wantsJson) {
+                return response()->json([
+                    'error' => 'Nao foi possivel processar o pedido agora. Tente novamente.',
+                ], 500);
+            }
+
+            return redirect()
+                ->route('checkout.index')
+                ->with('error', 'Nao foi possivel processar o pedido agora. Tente novamente.');
         }
 
         return $this->startPayment($order, $data['payment_method'], $wantsJson);
@@ -472,9 +489,20 @@ class CheckoutController extends Controller
             }
 
             return redirect()->away((string) $preference['init_point']);
-        } catch (RuntimeException $exception) {
+        } catch (Throwable $exception) {
+            Log::error('Falha ao iniciar pagamento', [
+                'order_id' => $order->id,
+                'payment_method' => $paymentMethod,
+                'message' => $exception->getMessage(),
+                'exception' => $exception::class,
+            ]);
+
             if ($expectsJson) {
-                return response()->json(['error' => $exception->getMessage()], 500);
+                $message = $exception instanceof RuntimeException
+                    ? $exception->getMessage()
+                    : 'Nao foi possivel iniciar o pagamento agora.';
+
+                return response()->json(['error' => $message], 500);
             }
 
             return redirect()->route('checkout.index')->with('error', $exception->getMessage());

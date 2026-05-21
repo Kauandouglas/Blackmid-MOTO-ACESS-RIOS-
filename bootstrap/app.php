@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
 
+        $middleware->append(\App\Http\Middleware\ForceHttps::class);
+
         $middleware->redirectGuestsTo(function (Request $request) {
             return $request->is('admin/*') || $request->is('admin')
                 ? '/admin/login'
