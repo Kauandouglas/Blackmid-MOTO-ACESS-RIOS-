@@ -31,6 +31,27 @@ class BlingProductService
             ->all();
     }
 
+    public function searchAllProducts(string $search = '', int $maxPages = 20, int $limit = 100): array
+    {
+        $products = collect();
+        $page = 1;
+        $limit = min(max(1, $limit), 100);
+
+        do {
+            $pageProducts = $this->searchProducts($search, $page, $limit);
+
+            $products = $products->concat($pageProducts);
+
+            $hasNextPage = count($pageProducts) === $limit && $page < $maxPages;
+            $page++;
+        } while ($hasNextPage);
+
+        return $products
+            ->unique('bling_id')
+            ->values()
+            ->all();
+    }
+
     public function getProduct(string $blingId): array
     {
         $payload = $this->request('get', "/produtos/{$blingId}");

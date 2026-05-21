@@ -22,7 +22,7 @@ class AdminBlingProductImportController extends Controller
 
         if ($request->has('q') || $search !== '') {
             try {
-                $results = $bling->searchProducts($search);
+                $results = $bling->searchAllProducts($search);
             } catch (\Throwable $exception) {
                 $error = $exception->getMessage();
             }
