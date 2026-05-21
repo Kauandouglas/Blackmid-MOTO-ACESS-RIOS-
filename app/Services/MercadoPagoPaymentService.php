@@ -58,6 +58,15 @@ class MercadoPagoPaymentService
             ];
         }
 
+        if ((float) $order->shipping_fee > 0) {
+            $items[] = [
+                'id' => 'shipping',
+                'title' => 'Frete',
+                'quantity' => 1,
+                'unit_price' => round((float) $order->shipping_fee, 2),
+            ];
+        }
+
         $payload = [
             'items'            => $items,
             'payer'            => [
@@ -71,15 +80,6 @@ class MercadoPagoPaymentService
             ],
             'auto_return'      => 'approved',
             'external_reference' => (string) $order->id,
-            'shipments'        => [
-                'cost'           => (float) $order->shipping_fee,
-                'mode'           => 'custom',
-                'receiver_address' => [
-                    'zip_code' => '00000',
-                    'street_name' => 'Endereço',
-                    'street_number' => 0,
-                ],
-            ],
             'notification_url' => route('webhooks.mercadopago'),
             'payment_methods'   => [
                 'excluded_payment_types' => [
