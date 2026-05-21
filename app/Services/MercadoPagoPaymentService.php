@@ -103,7 +103,10 @@ class MercadoPagoPaymentService
                 'response' => $response->json(),
             ]);
 
-            $mpError = $response->json('message') ?? 'Falha ao criar preferência Mercado Pago.';
+            $mpError = $response->json('message')
+                ?? $response->json('error')
+                ?? 'Falha ao criar preferencia Mercado Pago.';
+
             throw new RuntimeException($mpError);
         }
 

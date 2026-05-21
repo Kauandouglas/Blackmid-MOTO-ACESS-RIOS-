@@ -327,7 +327,9 @@ class CheckoutController extends Controller
 
             if ($wantsJson) {
                 return response()->json([
-                    'error' => 'Nao foi possivel processar o pedido agora. Tente novamente.',
+                    'error' => config('app.debug')
+                        ? $exception->getMessage()
+                        : 'Nao foi possivel processar o pedido agora. Tente novamente.',
                 ], 500);
             }
 
@@ -563,7 +565,7 @@ class CheckoutController extends Controller
             if ($expectsJson) {
                 $message = $exception instanceof RuntimeException
                     ? $exception->getMessage()
-                    : 'Nao foi possivel iniciar o pagamento agora.';
+                    : (config('app.debug') ? $exception->getMessage() : 'Nao foi possivel iniciar o pagamento agora.');
 
                 return response()->json(['error' => $message], 500);
             }

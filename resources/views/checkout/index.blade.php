@@ -339,7 +339,8 @@ function parseJsonResponse(response) {
         try {
             return JSON.parse(text);
         } catch (error) {
-            throw new Error('Resposta invalida do servidor.');
+            var preview = text.replace(/\s+/g, ' ').trim().slice(0, 180);
+            throw new Error(preview ? 'Resposta invalida do servidor: ' + preview : 'Resposta invalida do servidor.');
         }
     });
 }
@@ -697,7 +698,7 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
                             });
                             throw new Error(messages.join('\n'));
                         }
-                        throw new Error(data.error || data.message || 'Erro ao processar pedido.');
+                        throw new Error(data.error || data.message || ('Erro ao processar pedido. Status HTTP ' + response.status + '.'));
                     }
                     return data;
                 });
