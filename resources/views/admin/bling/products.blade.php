@@ -58,6 +58,17 @@
                         </label>
                     </div>
                 </div>
+
+                @if(! empty($results))
+                    @php
+                        $newCount = collect($results)->reject(fn ($item) => isset($imported[$item['bling_id']]))->count();
+                        $importedCount = count($results) - $newCount;
+                    @endphp
+                    <div class="mt-3 flex flex-wrap gap-2 text-xs font-bold text-muted">
+                        <span class="rounded-full border border-line bg-white px-3 py-1">{{ $newCount }} novo(s) primeiro</span>
+                        <span class="rounded-full border border-line bg-white px-3 py-1">{{ $importedCount }} ja importado(s)</span>
+                    </div>
+                @endif
             </div>
 
             <div class="panel-table-wrap">
@@ -75,10 +86,10 @@
                         <th class="panel-th hidden lg:table-cell">Status</th>
                     </tr>
                     </thead>
-                    <tbody class="panel-table-body">
+                    <tbody class="panel-table-body" data-bling-table-body>
                     @forelse($results as $item)
                         @php($alreadyImported = isset($imported[$item['bling_id']]))
-                        <tr>
+                        <tr data-product-row data-imported="{{ $alreadyImported ? '1' : '0' }}">
                             <td class="panel-td">
                                 <input class="h-4 w-4 rounded border-slate-300" type="checkbox" name="bling_ids[]" value="{{ $item['bling_id'] }}" data-product-checkbox>
                             </td>
@@ -125,11 +136,25 @@
             </div>
 
             <div class="flex flex-col gap-3 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                <p class="text-sm font-semibold text-muted"><span data-selected-count>0</span> produto(s) selecionado(s)</p>
+                <div class="space-y-1">
+                    <p class="text-sm font-semibold text-muted"><span data-selected-count>0</span> produto(s) selecionado(s)</p>
+                    <p class="text-xs font-semibold text-slate-400" data-page-summary></p>
+                </div>
                 <button class="panel-btn-primary" type="submit" {{ empty($results) ? 'disabled' : '' }} data-import-button>
                     Importar selecionados
                 </button>
             </div>
+
+            @if(count($results) > 20)
+                <div class="flex flex-col gap-3 border-t border-line bg-cloud px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5" data-bling-pagination>
+                    <p class="text-sm font-semibold text-muted" data-pagination-label></p>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button class="panel-btn-secondary px-3 py-2 text-xs" type="button" data-page-prev>Anterior</button>
+                        <div class="flex flex-wrap gap-1" data-page-buttons></div>
+                        <button class="panel-btn-secondary px-3 py-2 text-xs" type="button" data-page-next>Proxima</button>
+                    </div>
+                </div>
+            @endif
         </form>
     </div>
 
@@ -149,38 +174,123 @@
 
 @push('scripts')
 <script>
-const checkboxes = Array.from(document.querySelectorAll('[data-product-checkbox]'));
-const selectAll = document.querySelector('[data-select-all]');
-const count = document.querySelector('[data-selected-count]');
-const importButton = document.querySelector('[data-import-button]');
+(() => {
+    const rows = Array.from(document.querySelectorAll('[data-product-row]'));
+    const checkboxes = Array.from(document.querySelectorAll('[data-product-checkbox]'));
+    const selectAll = document.querySelector('[data-select-all]');
+    const count = document.querySelector('[data-selected-count]');
+    const importButton = document.querySelector('[data-import-button]');
+    const pageSummary = document.querySelector('[data-page-summary]');
+    const pagination = document.querySelector('[data-bling-pagination]');
+    const paginationLabel = document.querySelector('[data-pagination-label]');
+    const pageButtons = document.querySelector('[data-page-buttons]');
+    const prevButton = document.querySelector('[data-page-prev]');
+    const nextButton = document.querySelector('[data-page-next]');
 
-function refreshSelection() {
-    const selected = checkboxes.filter(checkbox => checkbox.checked).length;
-    if (count) count.textContent = selected;
-    if (importButton) importButton.disabled = selected === 0;
-    if (selectAll) {
-        selectAll.checked = selected > 0 && selected === checkboxes.length;
-        selectAll.indeterminate = selected > 0 && selected < checkboxes.length;
+    const pageSize = 20;
+    let currentPage = 1;
+    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+
+    function visibleRows() {
+        return rows.filter(row => row.style.display !== 'none');
     }
-}
 
-checkboxes.forEach(checkbox => checkbox.addEventListener('change', refreshSelection));
+    function renderPaginationButtons() {
+        if (!pageButtons) return;
 
-if (selectAll) {
-    selectAll.addEventListener('change', () => {
-        checkboxes.forEach(checkbox => checkbox.checked = selectAll.checked);
+        pageButtons.innerHTML = '';
+        for (let page = 1; page <= totalPages; page++) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = page;
+            button.className = page === currentPage
+                ? 'rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white'
+                : 'rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-muted hover:bg-slate-50';
+            button.addEventListener('click', () => {
+                currentPage = page;
+                renderPage();
+            });
+            pageButtons.appendChild(button);
+        }
+    }
+
+    function refreshSelection() {
+        const selected = checkboxes.filter(checkbox => checkbox.checked).length;
+        const visibleCheckboxes = visibleRows()
+            .map(row => row.querySelector('[data-product-checkbox]'))
+            .filter(Boolean);
+        const visibleSelected = visibleCheckboxes.filter(checkbox => checkbox.checked).length;
+
+        if (count) count.textContent = selected;
+        if (importButton) importButton.disabled = selected === 0;
+        if (selectAll) {
+            selectAll.checked = visibleCheckboxes.length > 0 && visibleSelected === visibleCheckboxes.length;
+            selectAll.indeterminate = visibleSelected > 0 && visibleSelected < visibleCheckboxes.length;
+        }
+    }
+
+    function renderPage() {
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+
+        rows.forEach((row, index) => {
+            row.style.display = index >= start && index < end ? '' : 'none';
+        });
+
+        if (pageSummary && rows.length) {
+            pageSummary.textContent = 'Mostrando ' + (start + 1) + '-' + Math.min(end, rows.length) + ' de ' + rows.length + ' produto(s).';
+        }
+
+        if (paginationLabel) {
+            paginationLabel.textContent = 'Pagina ' + currentPage + ' de ' + totalPages;
+        }
+
+        if (prevButton) prevButton.disabled = currentPage === 1;
+        if (nextButton) nextButton.disabled = currentPage === totalPages;
+
+        renderPaginationButtons();
         refreshSelection();
-    });
-}
-
-document.getElementById('blingImportForm')?.addEventListener('submit', () => {
-    if (importButton) {
-        importButton.disabled = true;
-        importButton.textContent = 'Importando...';
     }
-});
 
-refreshSelection();
+    checkboxes.forEach(checkbox => checkbox.addEventListener('change', refreshSelection));
+
+    if (selectAll) {
+        selectAll.addEventListener('change', () => {
+            visibleRows().forEach(row => {
+                const checkbox = row.querySelector('[data-product-checkbox]');
+                if (checkbox) checkbox.checked = selectAll.checked;
+            });
+            refreshSelection();
+        });
+    }
+
+    prevButton?.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPage();
+        }
+    });
+
+    nextButton?.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderPage();
+        }
+    });
+
+    document.getElementById('blingImportForm')?.addEventListener('submit', () => {
+        if (importButton) {
+            importButton.disabled = true;
+            importButton.textContent = 'Importando...';
+        }
+    });
+
+    if (pagination && totalPages <= 1) {
+        pagination.hidden = true;
+    }
+
+    renderPage();
+})();
 </script>
 @endpush
 @endsection

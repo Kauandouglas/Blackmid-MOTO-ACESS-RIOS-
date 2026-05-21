@@ -85,13 +85,31 @@ class AdminProductController extends Controller
 
     public function destroy(Product $produto): RedirectResponse
     {
-        foreach (array_merge([$produto->image], $produto->gallery ?? []) as $imagePath) {
-            app(ProductImageService::class)->delete($imagePath);
-        }
-
+        $this->deleteProductImages($produto);
         $produto->delete();
 
         return redirect()->route('admin.produtos.index')->with('success', 'Produto removido com sucesso.');
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'product_ids' => ['required', 'array', 'min:1', 'max:100'],
+            'product_ids.*' => ['required', 'integer', 'exists:products,id'],
+        ]);
+
+        $products = Product::query()
+            ->whereIn('id', collect($data['product_ids'])->map(fn ($id) => (int) $id)->unique()->all())
+            ->get();
+
+        foreach ($products as $product) {
+            $this->deleteProductImages($product);
+            $product->delete();
+        }
+
+        return redirect()
+            ->route('admin.produtos.index')
+            ->with('success', $products->count().' produto(s) removido(s) com sucesso.');
     }
 
     private function validated(Request $request, ?int $ignoreId = null): array
@@ -341,5 +359,12 @@ class AdminProductController extends Controller
             ->filter()
             ->values()
             ->all();
+    }
+
+    private function deleteProductImages(Product $product): void
+    {
+        foreach (array_merge([$product->image], $product->gallery ?? []) as $imagePath) {
+            app(ProductImageService::class)->delete($imagePath);
+        }
     }
 }

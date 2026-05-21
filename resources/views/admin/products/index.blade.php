@@ -13,10 +13,27 @@
 </div>
 
 <div class="panel-card overflow-hidden">
+    <form id="bulkDeleteProductsForm" method="POST" action="{{ route('admin.produtos.bulk-destroy') }}" onsubmit="return confirmBulkProductDelete();">
+        @csrf
+        @method('DELETE')
+    </form>
+
+    <div class="flex flex-col gap-3 border-b border-line bg-cloud px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <p class="text-sm font-semibold text-muted">
+            <span data-selected-count>0</span> produto(s) selecionado(s)
+        </p>
+        <button class="panel-btn-danger self-start sm:self-auto" type="submit" form="bulkDeleteProductsForm" data-bulk-delete-button disabled>
+            Excluir selecionados
+        </button>
+    </div>
+
     <div class="panel-table-wrap">
     <table class="panel-table">
         <thead class="panel-thead">
         <tr>
+            <th class="panel-th w-12">
+                <input class="h-4 w-4 rounded border-slate-300" type="checkbox" data-select-all-products>
+            </th>
             <th class="panel-th">Produto</th>
             <th class="panel-th hidden lg:table-cell">Categoria</th>
             <th class="panel-th hidden xl:table-cell">SKU</th>
@@ -30,6 +47,17 @@
         <tbody class="panel-table-body">
         @forelse($products as $product)
             <tr>
+                <td class="panel-td">
+                    <input
+                        class="h-4 w-4 rounded border-slate-300"
+                        type="checkbox"
+                        name="product_ids[]"
+                        value="{{ $product->id }}"
+                        form="bulkDeleteProductsForm"
+                        data-product-checkbox
+                        aria-label="Selecionar {{ $product->name }}"
+                    >
+                </td>
                 <td class="panel-td-strong">
                     <span class="block">{{ $product->name }}</span>
                     <span class="block text-xs text-muted font-normal lg:hidden">{{ $product->category?->name ?? '' }}</span>
@@ -69,7 +97,7 @@
                 </td>
             </tr>
         @empty
-            <tr><td colspan="8" class="panel-td py-8 text-center text-slate-500">Nenhum produto encontrado.</td></tr>
+            <tr><td colspan="9" class="panel-td py-8 text-center text-slate-500">Nenhum produto encontrado.</td></tr>
         @endforelse
         </tbody>
     </table>
@@ -79,4 +107,41 @@
     {{ $products->links() }}
     </div>
 </div>
+
+@push('scripts')
+<script>
+const productCheckboxes = Array.from(document.querySelectorAll('[data-product-checkbox]'));
+const selectAllProducts = document.querySelector('[data-select-all-products]');
+const selectedCount = document.querySelector('[data-selected-count]');
+const bulkDeleteButton = document.querySelector('[data-bulk-delete-button]');
+
+function refreshBulkProductSelection() {
+    const selected = productCheckboxes.filter(checkbox => checkbox.checked).length;
+
+    if (selectedCount) selectedCount.textContent = selected;
+    if (bulkDeleteButton) bulkDeleteButton.disabled = selected === 0;
+    if (selectAllProducts) {
+        selectAllProducts.checked = selected > 0 && selected === productCheckboxes.length;
+        selectAllProducts.indeterminate = selected > 0 && selected < productCheckboxes.length;
+    }
+}
+
+function confirmBulkProductDelete() {
+    const selected = productCheckboxes.filter(checkbox => checkbox.checked).length;
+
+    if (selected === 0) return false;
+
+    return confirm('Excluir ' + selected + ' produto(s) selecionado(s)? Essa acao nao pode ser desfeita.');
+}
+
+productCheckboxes.forEach(checkbox => checkbox.addEventListener('change', refreshBulkProductSelection));
+
+selectAllProducts?.addEventListener('change', () => {
+    productCheckboxes.forEach(checkbox => checkbox.checked = selectAllProducts.checked);
+    refreshBulkProductSelection();
+});
+
+refreshBulkProductSelection();
+</script>
+@endpush
 @endsection

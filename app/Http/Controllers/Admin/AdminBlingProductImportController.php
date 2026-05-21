@@ -37,6 +37,14 @@ class AdminBlingProductImportController extends Controller
             )
             ->all();
 
+        $results = collect($results)
+            ->sortBy([
+                fn (array $item) => isset($imported[$item['bling_id']]) ? 1 : 0,
+                fn (array $item) => mb_strtolower((string) ($item['name'] ?? '')),
+            ])
+            ->values()
+            ->all();
+
         return view('admin.bling.products', [
             'blingConfigured' => $bling->isConfigured(),
             'categories' => Category::query()->orderBy('name')->get(),

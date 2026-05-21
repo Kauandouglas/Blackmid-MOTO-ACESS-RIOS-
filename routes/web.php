@@ -77,6 +77,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 		Route::get('/bling/callback', [AdminBlingAuthController::class, 'callback'])->name('bling.callback');
 		Route::get('/bling/produtos', [AdminBlingProductImportController::class, 'index'])->name('bling.products.index');
 		Route::post('/bling/produtos/importar', [AdminBlingProductImportController::class, 'import'])->name('bling.products.import');
+		Route::delete('/produtos/excluir-em-massa', [AdminProductController::class, 'bulkDestroy'])->name('produtos.bulk-destroy');
 		Route::resource('produtos', AdminProductController::class)->except('show');
 		Route::resource('menus', AdminMenuController::class)->except('show');
 
