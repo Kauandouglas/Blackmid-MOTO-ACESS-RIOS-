@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -174,6 +175,8 @@ class BlingProductService
             ?? data_get($item, 'pesoBruto')
             ?? $netWeight);
 
+        $imageUrls = $this->imageUrls($item);
+
         return [
             'bling_id' => (string) data_get($item, 'id', ''),
             'code' => (string) (data_get($item, 'codigo') ?? ''),
@@ -200,7 +203,8 @@ class BlingProductService
             'width_cm' => $this->dimensionToCm(data_get($item, 'dimensoes.largura') ?? data_get($item, 'largura')),
             'height_cm' => $this->dimensionToCm(data_get($item, 'dimensoes.altura') ?? data_get($item, 'altura')),
             'depth_cm' => $this->dimensionToCm(data_get($item, 'dimensoes.profundidade') ?? data_get($item, 'profundidade')),
-            'image' => $this->imageUrl($item),
+            'image' => $imageUrls[0] ?? null,
+            'images' => $imageUrls,
             'active' => ! in_array(strtolower((string) data_get($item, 'situacao')), ['i', 'inativo'], true),
         ];
     }
@@ -258,13 +262,26 @@ class BlingProductService
         return $dimension > 0 ? round($dimension, 2) : null;
     }
 
-    private function imageUrl(array $item): ?string
+    private function imageUrls(array $item): array
     {
-        $url = data_get($item, 'midia.imagens.externas.0.link')
-            ?? data_get($item, 'midia.imagens.internas.0.link')
-            ?? data_get($item, 'imagemURL')
-            ?? data_get($item, 'image');
+        $candidates = Arr::flatten([
+            data_get($item, 'midia.imagens.externas.*.link', []),
+            data_get($item, 'midia.imagens.externas.*.url', []),
+            data_get($item, 'midia.imagens.externas.*', []),
+            data_get($item, 'midia.imagens.internas.*.link', []),
+            data_get($item, 'midia.imagens.internas.*.url', []),
+            data_get($item, 'midia.imagens.internas.*', []),
+            data_get($item, 'midia.imagens.*.link', []),
+            data_get($item, 'midia.imagens.*.url', []),
+            data_get($item, 'imagemURL'),
+            data_get($item, 'image'),
+        ]);
 
-        return filter_var($url, FILTER_VALIDATE_URL) ? (string) $url : null;
+        return collect($candidates)
+            ->filter(fn ($url) => is_string($url) && filter_var($url, FILTER_VALIDATE_URL))
+            ->map(fn (string $url) => trim($url))
+            ->unique()
+            ->values()
+            ->all();
     }
 }

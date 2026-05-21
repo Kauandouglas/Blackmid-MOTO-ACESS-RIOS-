@@ -85,6 +85,7 @@ class MercadoPagoPaymentService
                 'excluded_payment_types' => [
                     ['id' => 'account_money'],
                     ['id' => 'atm'],
+                    ['id' => 'ticket'],
                 ],
                 'installments' => 12,
             ],

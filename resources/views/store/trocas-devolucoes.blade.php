@@ -89,7 +89,7 @@
             <p>O reembolso será realizado conforme a forma de pagamento utilizada na compra:</p>
             <ul>
                 <li><i class="fa-solid fa-credit-card"></i> Cartão de crédito: estorno realizado pela operadora;</li>
-                <li><i class="fa-brands fa-pix"></i> PIX ou boleto: transferência para conta bancária do titular da compra.</li>
+                <li><i class="fa-brands fa-pix"></i> PIX: transferência para conta bancária do titular da compra.</li>
             </ul>
         </div>
     </div>

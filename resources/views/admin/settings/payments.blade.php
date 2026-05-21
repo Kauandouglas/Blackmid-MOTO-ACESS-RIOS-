@@ -17,7 +17,7 @@
                 </span>
                 <div>
                     <h2 class="panel-section-title">Mercado Pago</h2>
-                    <p class="text-xs text-muted mt-0.5">Cartão, PIX e Boleto</p>
+                    <p class="text-xs text-muted mt-0.5">Cartão e PIX</p>
                 </div>
             </div>
 
@@ -60,7 +60,6 @@
                     <li>💳 Cartão de Crédito</li>
                     <li>💳 Cartão de Débito</li>
                     <li>📱 PIX (Instantâneo)</li>
-                    <li>📋 Boleto Bancário</li>
                 </ul>
             </div>
         </div>
