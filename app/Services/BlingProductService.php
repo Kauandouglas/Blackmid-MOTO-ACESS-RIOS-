@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -44,7 +45,7 @@ class BlingProductService
     public function isConfigured(): bool
     {
         return filled($this->accessToken()) || (
-            filled(config('bling.refresh_token'))
+            filled($this->refreshToken())
             && filled(config('bling.client_id'))
             && filled(config('bling.client_secret'))
         );
@@ -59,7 +60,11 @@ class BlingProductService
         try {
             $response = $this->http()->{$method}($this->url($path), $query);
 
-            if ($response->status() === 401 && $this->refreshAccessToken()) {
+            if ($this->shouldRefreshAccessToken($response)) {
+                if (! $this->refreshAccessToken()) {
+                    throw new RuntimeException('Sessao do Bling expirada. Abra Conectar Bling e autorize novamente a integracao.');
+                }
+
                 $response = $this->http()->{$method}($this->url($path), $query);
             }
 
@@ -94,9 +99,16 @@ class BlingProductService
         return Cache::get('bling_access_token') ?: config('bling.access_token');
     }
 
+    private function refreshToken(): ?string
+    {
+        return Cache::get('bling_refresh_token') ?: config('bling.refresh_token');
+    }
+
     private function refreshAccessToken(): bool
     {
-        if (! filled(config('bling.refresh_token')) || ! filled(config('bling.client_id')) || ! filled(config('bling.client_secret'))) {
+        $refreshToken = $this->refreshToken();
+
+        if (! filled($refreshToken) || ! filled(config('bling.client_id')) || ! filled(config('bling.client_secret'))) {
             return false;
         }
 
@@ -106,7 +118,7 @@ class BlingProductService
             ->timeout((int) config('bling.timeout', 20))
             ->post('https://www.bling.com.br/Api/v3/oauth/token', [
                 'grant_type' => 'refresh_token',
-                'refresh_token' => (string) config('bling.refresh_token'),
+                'refresh_token' => (string) $refreshToken,
             ]);
 
         if (! $response->successful() || ! filled($response->json('access_token'))) {
@@ -114,7 +126,7 @@ class BlingProductService
         }
 
         $accessToken = (string) $response->json('access_token');
-        $refreshToken = (string) ($response->json('refresh_token') ?: config('bling.refresh_token'));
+        $refreshToken = (string) ($response->json('refresh_token') ?: $refreshToken);
 
         $this->env->set([
             'BLING_ACCESS_TOKEN' => $accessToken,
@@ -127,8 +139,25 @@ class BlingProductService
         ]);
 
         Cache::put('bling_access_token', $accessToken, now()->addMinutes(50));
+        Cache::put('bling_refresh_token', $refreshToken, now()->addDays(29));
 
         return true;
+    }
+
+    private function shouldRefreshAccessToken(Response $response): bool
+    {
+        if ($response->status() === 401) {
+            return true;
+        }
+
+        $message = strtolower((string) (
+            $response->json('error.description')
+            ?? $response->json('error.message')
+            ?? $response->body()
+        ));
+
+        return str_contains($message, 'access token')
+            && (str_contains($message, 'invalid') || str_contains($message, 'expired'));
     }
 
     private function url(string $path): string

@@ -89,6 +89,7 @@ class AdminBlingAuthController extends Controller
         ]);
 
         Cache::put('bling_access_token', $tokens['access_token'], now()->addMinutes(50));
+        Cache::put('bling_refresh_token', $tokens['refresh_token'], now()->addDays(29));
 
         return redirect()
             ->route('admin.bling.products.index')
