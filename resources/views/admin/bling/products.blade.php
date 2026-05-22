@@ -68,6 +68,15 @@
                         <span class="rounded-full border border-line bg-white px-3 py-1">{{ $newCount }} novo(s) primeiro</span>
                         <span class="rounded-full border border-line bg-white px-3 py-1">{{ $importedCount }} ja importado(s)</span>
                     </div>
+
+                    <div class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <span class="text-xs font-bold uppercase tracking-wide text-muted">Exibir</span>
+                        <div class="flex flex-wrap gap-2" data-import-filter>
+                            <button class="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white" type="button" data-filter-value="all">Todos</button>
+                            <button class="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-muted hover:bg-slate-50" type="button" data-filter-value="new">Nao importados</button>
+                            <button class="rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-muted hover:bg-slate-50" type="button" data-filter-value="imported">Ja importados</button>
+                        </div>
+                    </div>
                 @endif
             </div>
 
@@ -186,10 +195,23 @@
     const pageButtons = document.querySelector('[data-page-buttons]');
     const prevButton = document.querySelector('[data-page-prev]');
     const nextButton = document.querySelector('[data-page-next]');
+    const filterButtons = Array.from(document.querySelectorAll('[data-filter-value]'));
 
     const pageSize = 20;
     let currentPage = 1;
-    const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+    let currentFilter = 'all';
+
+    function filteredRows() {
+        return rows.filter(row => {
+            if (currentFilter === 'new') return row.dataset.imported === '0';
+            if (currentFilter === 'imported') return row.dataset.imported === '1';
+            return true;
+        });
+    }
+
+    function totalPages() {
+        return Math.max(1, Math.ceil(filteredRows().length / pageSize));
+    }
 
     function visibleRows() {
         return rows.filter(row => row.style.display !== 'none');
@@ -199,7 +221,7 @@
         if (!pageButtons) return;
 
         pageButtons.innerHTML = '';
-        for (let page = 1; page <= totalPages; page++) {
+        for (let page = 1; page <= totalPages(); page++) {
             const button = document.createElement('button');
             button.type = 'button';
             button.textContent = page;
@@ -230,23 +252,30 @@
     }
 
     function renderPage() {
+        const currentRows = filteredRows();
+        const pages = totalPages();
+        currentPage = Math.min(currentPage, pages);
+
         const start = (currentPage - 1) * pageSize;
         const end = start + pageSize;
 
-        rows.forEach((row, index) => {
+        rows.forEach(row => row.style.display = 'none');
+        currentRows.forEach((row, index) => {
             row.style.display = index >= start && index < end ? '' : 'none';
         });
 
-        if (pageSummary && rows.length) {
-            pageSummary.textContent = 'Mostrando ' + (start + 1) + '-' + Math.min(end, rows.length) + ' de ' + rows.length + ' produto(s).';
+        if (pageSummary) {
+            pageSummary.textContent = currentRows.length
+                ? 'Mostrando ' + (start + 1) + '-' + Math.min(end, currentRows.length) + ' de ' + currentRows.length + ' produto(s).'
+                : 'Nenhum produto neste filtro.';
         }
 
         if (paginationLabel) {
-            paginationLabel.textContent = 'Pagina ' + currentPage + ' de ' + totalPages;
+            paginationLabel.textContent = 'Pagina ' + currentPage + ' de ' + pages;
         }
 
         if (prevButton) prevButton.disabled = currentPage === 1;
-        if (nextButton) nextButton.disabled = currentPage === totalPages;
+        if (nextButton) nextButton.disabled = currentPage === pages;
 
         renderPaginationButtons();
         refreshSelection();
@@ -272,10 +301,26 @@
     });
 
     nextButton?.addEventListener('click', () => {
-        if (currentPage < totalPages) {
+        if (currentPage < totalPages()) {
             currentPage++;
             renderPage();
         }
+    });
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentFilter = button.dataset.filterValue || 'all';
+            currentPage = 1;
+
+            filterButtons.forEach(item => {
+                const active = item === button;
+                item.className = active
+                    ? 'rounded-lg bg-brand px-3 py-2 text-xs font-bold text-white'
+                    : 'rounded-lg border border-line bg-white px-3 py-2 text-xs font-bold text-muted hover:bg-slate-50';
+            });
+
+            renderPage();
+        });
     });
 
     document.getElementById('blingImportForm')?.addEventListener('submit', () => {
@@ -285,7 +330,7 @@
         }
     });
 
-    if (pagination && totalPages <= 1) {
+    if (pagination && totalPages() <= 1) {
         pagination.hidden = true;
     }
 
