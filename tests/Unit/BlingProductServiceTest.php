@@ -65,4 +65,42 @@ class BlingProductServiceTest extends TestCase
 
         Http::assertSentCount(3);
     }
+
+    public function test_it_uses_bling_product_name_filter_when_searching(): void
+    {
+        config([
+            'bling.base_url' => 'https://api.bling.com.br/Api/v3',
+            'bling.access_token' => 'access-token',
+            'bling.refresh_token' => null,
+            'bling.client_id' => null,
+            'bling.client_secret' => null,
+            'bling.timeout' => 20,
+        ]);
+
+        Cache::flush();
+
+        Http::fake([
+            'https://api.bling.com.br/Api/v3/produtos*' => Http::response(['data' => [
+                [
+                    'id' => 456,
+                    'nome' => 'Capacete Pro Tork',
+                    'codigo' => 'CAP-1',
+                    'preco' => 199.9,
+                ],
+            ]], 200),
+        ]);
+
+        $products = (new BlingProductService(new EnvFileService()))->searchProducts('capacete');
+
+        $this->assertSame('456', $products[0]['bling_id']);
+
+        Http::assertSent(function ($request) {
+            $query = [];
+            parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
+
+            return $request->url() !== ''
+                && ($query['nome'] ?? null) === 'capacete'
+                && ! array_key_exists('criterio', $query);
+        });
+    }
 }

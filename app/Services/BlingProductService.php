@@ -20,7 +20,7 @@ class BlingProductService
         $payload = $this->request('get', '/produtos', array_filter([
             'pagina' => max(1, $page),
             'limite' => min(max(1, $limit), 100),
-            'criterio' => $search !== '' ? $search : null,
+            'nome' => $search !== '' ? $search : null,
         ]));
 
         return collect($payload['data'] ?? [])
