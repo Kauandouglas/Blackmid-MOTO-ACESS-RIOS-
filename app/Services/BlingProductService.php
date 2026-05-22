@@ -61,6 +61,15 @@ class BlingProductService
             throw new RuntimeException("Produto {$blingId} nao encontrado no Bling.");
         }
 
+        if (($product['formato'] ?? null) === 'V') {
+            $variationPayload = $this->request('get', "/produtos/variacoes/{$blingId}");
+            $variationProduct = $variationPayload['data'] ?? [];
+
+            if (is_array($variationProduct) && ! empty($variationProduct)) {
+                $product = array_replace_recursive($product, $variationProduct);
+            }
+        }
+
         return $this->normalizeProduct($product);
     }
 
@@ -197,6 +206,7 @@ class BlingProductService
             ?? $netWeight);
 
         $imageUrls = $this->imageUrls($item);
+        $variants = $this->variants($item);
 
         return [
             'bling_id' => (string) data_get($item, 'id', ''),
@@ -226,6 +236,9 @@ class BlingProductService
             'depth_cm' => $this->dimensionToCm(data_get($item, 'dimensoes.profundidade') ?? data_get($item, 'profundidade')),
             'image' => $imageUrls[0] ?? null,
             'images' => $imageUrls,
+            'sizes' => collect($variants)->pluck('size')->filter()->unique()->values()->all(),
+            'colors' => collect($variants)->pluck('color')->filter()->unique()->values()->all(),
+            'variants' => $variants,
             'active' => ! in_array(strtolower((string) data_get($item, 'situacao')), ['i', 'inativo'], true),
         ];
     }
@@ -281,6 +294,56 @@ class BlingProductService
         $dimension = $this->number($value);
 
         return $dimension > 0 ? round($dimension, 2) : null;
+    }
+
+    private function variants(array $item): array
+    {
+        $rawVariants = data_get($item, 'variacoes', []);
+
+        if (! is_array($rawVariants)) {
+            return [];
+        }
+
+        return collect($rawVariants)
+            ->map(function ($variant) {
+                if (! is_array($variant)) {
+                    return null;
+                }
+
+                $attributes = $this->variationAttributes((string) data_get($variant, 'variacao.nome', ''));
+                $size = $attributes['tamanho'] ?? $attributes['tam'] ?? $attributes['size'] ?? '';
+                $color = $attributes['cor'] ?? $attributes['color'] ?? '';
+
+                return [
+                    'bling_id' => (string) data_get($variant, 'id', ''),
+                    'code' => (string) (data_get($variant, 'codigo') ?? ''),
+                    'size' => trim((string) $size),
+                    'color' => trim((string) $color),
+                    'stock' => max(0, (int) round($this->number(
+                        data_get($variant, 'estoque.saldoVirtualTotal')
+                        ?? data_get($variant, 'estoque.saldoFisicoTotal')
+                        ?? data_get($variant, 'estoqueAtual')
+                    ))),
+                    'price' => $this->number(data_get($variant, 'preco') ?? data_get($variant, 'precoVenda')),
+                ];
+            })
+            ->filter(fn (?array $variant) => $variant && ($variant['size'] !== '' || $variant['color'] !== ''))
+            ->unique(fn (array $variant) => mb_strtolower($variant['size'].'|'.$variant['color']))
+            ->values()
+            ->all();
+    }
+
+    private function variationAttributes(string $name): array
+    {
+        return collect(preg_split('/[;|,]+/', $name) ?: [])
+            ->mapWithKeys(function (string $part) {
+                [$key, $value] = array_pad(explode(':', $part, 2), 2, '');
+                $key = $this->normalizeText($key);
+                $value = trim($value);
+
+                return $key !== '' && $value !== '' ? [$key => $value] : [];
+            })
+            ->all();
     }
 
     private function imageUrls(array $item): array

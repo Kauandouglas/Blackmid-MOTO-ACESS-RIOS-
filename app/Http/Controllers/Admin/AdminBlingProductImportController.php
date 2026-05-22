@@ -91,6 +91,7 @@ class AdminBlingProductImportController extends Controller
                 }
 
                 $product->categories()->syncWithoutDetaching([(int) $data['category_id']]);
+                $this->syncProductVariants($product, $payload['variants'] ?? []);
             } catch (\Throwable $exception) {
                 $errors[] = "{$blingId}: ".$exception->getMessage();
             }
@@ -113,7 +114,12 @@ class AdminBlingProductImportController extends Controller
     ): array
     {
         $name = $payload['name'] ?: 'Produto Bling '.$payload['bling_id'];
-        $stock = (int) $payload['stock'];
+        $variants = collect($payload['variants'] ?? [])
+            ->filter(fn ($variant) => is_array($variant))
+            ->values();
+        $stock = $variants->isNotEmpty()
+            ? (int) $variants->sum(fn (array $variant) => max(0, (int) ($variant['stock'] ?? 0)))
+            : (int) $payload['stock'];
         $downloadedImages = collect($payload['images'] ?? [])
             ->whenEmpty(fn ($collection) => collect([$payload['image'] ?? null]))
             ->filter()
@@ -130,6 +136,8 @@ class AdminBlingProductImportController extends Controller
             'description' => $payload['description'] ?: null,
             'observations' => $payload['observations'] ?: null,
             'price' => max(0, (float) $payload['price']),
+            'sizes' => $payload['sizes'] ?? [],
+            'colors' => $payload['colors'] ?? [],
             'featured' => false,
             'stock' => $stock,
             'track_stock' => true,
@@ -157,6 +165,26 @@ class AdminBlingProductImportController extends Controller
         }
 
         return $attributes;
+    }
+
+    private function syncProductVariants(Product $product, array $variants): void
+    {
+        $normalizedVariants = collect($variants)
+            ->map(fn ($variant) => [
+                'size' => trim((string) ($variant['size'] ?? '')),
+                'color' => trim((string) ($variant['color'] ?? '')),
+                'stock' => max(0, (int) ($variant['stock'] ?? 0)),
+            ])
+            ->filter(fn (array $variant) => $variant['size'] !== '' || $variant['color'] !== '')
+            ->unique(fn (array $variant) => mb_strtolower($variant['size'].'|'.$variant['color']))
+            ->values()
+            ->all();
+
+        $product->variants()->delete();
+
+        if (! empty($normalizedVariants)) {
+            $product->variants()->createMany($normalizedVariants);
+        }
     }
 
     private function generateUniqueSlug(string $name, ?int $ignoreId = null): string
