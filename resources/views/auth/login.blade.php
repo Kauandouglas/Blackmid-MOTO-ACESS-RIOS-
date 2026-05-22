@@ -30,7 +30,7 @@
                 @if($loginEmail)
                     <div>
                         <label for="code">Codigo recebido</label>
-                        <input id="code" class="auth-code-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" name="code" value="{{ old('code') }}" required autocomplete="one-time-code" placeholder="000000">
+                        <input id="code" class="auth-code-input" type="text" inputmode="numeric" maxlength="12" name="code" value="{{ old('code') }}" required autocomplete="one-time-code" placeholder="000000">
                         @error('code') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
                 @endif

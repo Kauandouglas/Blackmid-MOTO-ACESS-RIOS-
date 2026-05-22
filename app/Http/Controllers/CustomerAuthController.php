@@ -112,6 +112,10 @@ class CustomerAuthController extends Controller
 
     private function verifyLoginCode(Request $request): RedirectResponse
     {
+        $request->merge([
+            'code' => preg_replace('/\D+/', '', (string) $request->input('code', '')),
+        ]);
+
         $validated = $request->validate([
             'email' => ['required', 'email', 'max:255'],
             'code' => ['required', 'digits:6'],

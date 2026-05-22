@@ -21,7 +21,7 @@ class CustomerLoginCodeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Seu codigo de acesso',
+            subject: 'Codigo de acesso Moto Acessorios',
         );
     }
 
@@ -29,6 +29,7 @@ class CustomerLoginCodeMail extends Mailable
     {
         return new Content(
             view: 'emails.customer-login-code',
+            text: 'emails.customer-login-code-text',
         );
     }
 }
