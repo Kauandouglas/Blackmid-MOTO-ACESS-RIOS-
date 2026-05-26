@@ -383,7 +383,9 @@ if (typeof fbq === 'function') {
 @endif
 <script>
 var SUBTOTAL = {{ (float) $subtotal }};
-var DISCOUNT = {{ (float) ($discount ?? 0) }};
+var COUPON_DISCOUNT = {{ (float) $couponDiscount }};
+var PIX_DISCOUNT = {{ (float) $pixDiscount }};
+var DISCOUNT = COUPON_DISCOUNT + PIX_DISCOUNT;
 var RATES = @json($shippingRates);
 var HAS_SHIPPING_QUOTE = @json((bool) $hasInitialShippingQuote);
 var QUOTE_URL = '{{ route('checkout.quote') }}';
@@ -428,17 +430,39 @@ function trackAddPaymentInfo(paymentMethod) {
     });
 }
 
+function paymentDiscountForCurrentType() {
+    return selectedPaymentType() === 'pix'
+        ? Math.round(Math.max(0, SUBTOTAL - COUPON_DISCOUNT) * 0.05 * 100) / 100
+        : 0;
+}
+
+function currentShippingFee() {
+    if (!HAS_SHIPPING_QUOTE) return 0;
+    var rate = RATES[selectedShippingService()] || null;
+    if (!rate) return 0;
+    return rate.is_free ? 0 : Number(rate.price || 0);
+}
+
+function updateTotals(shippingFee) {
+    PIX_DISCOUNT = paymentDiscountForCurrentType();
+    DISCOUNT = COUPON_DISCOUNT + PIX_DISCOUNT;
+
+    var total = Math.max(0, SUBTOTAL - DISCOUNT) + Number(shippingFee || 0);
+    var totalEl = document.getElementById('sidebar-total');
+    var amountEl = document.getElementById('form-checkout__amount');
+
+    if (totalEl) totalEl.textContent = money(total);
+    if (amountEl) amountEl.value = Number(total || 0).toFixed(2);
+    updateDiscount();
+}
+
 function selectShipping(service, price, isFree) {
     var shippingEl = document.getElementById('sidebar-shipping');
-    var totalEl = document.getElementById('sidebar-total');
     var msgEl = document.getElementById('shipping-msg');
     var fee = isFree ? 0 : Number(price || 0);
 
     if (shippingEl) shippingEl.textContent = isFree ? 'Gratis' : money(fee);
-    var total = Math.max(0, SUBTOTAL - DISCOUNT) + fee;
-    if (totalEl) totalEl.textContent = money(total);
-    var amountEl = document.getElementById('form-checkout__amount');
-    if (amountEl) amountEl.value = Number(total || 0).toFixed(2);
+    updateTotals(fee);
 
     if (msgEl) {
         msgEl.textContent = service === 'sedex'
@@ -479,11 +503,10 @@ function setShippingReady(isReady) {
 
     if (!HAS_SHIPPING_QUOTE) {
         var shippingEl = document.getElementById('sidebar-shipping');
-        var totalEl = document.getElementById('sidebar-total');
         var msgEl = document.getElementById('shipping-msg');
 
         if (shippingEl) shippingEl.textContent = 'A calcular';
-        if (totalEl) totalEl.textContent = money(Math.max(0, SUBTOTAL - DISCOUNT));
+        updateTotals(0);
         if (msgEl) msgEl.textContent = 'Informe o CEP para calcular o frete dos Correios.';
     }
 }
@@ -552,6 +575,7 @@ function quoteShipping() {
             customer_email: customerEmail,
             customer_phone: customerPhone,
             coupon_code: couponCode,
+            payment_type: selectedPaymentType(),
         }),
     })
         .then(function (response) {
@@ -567,8 +591,10 @@ function quoteShipping() {
             var current = selectedShippingService();
             var selected = RATES[current] ? current : 'pac';
             var rate = RATES[selected] || null;
+            COUPON_DISCOUNT = Number(data.coupon_discount || 0);
+            PIX_DISCOUNT = Number(data.payment_discount || 0);
             DISCOUNT = Number(data.discount || 0);
-            updateDiscount(data.coupon_valid, data.discount_label);
+            updateDiscount(data.coupon_valid);
 
             if (rate) {
                 setShippingReady(true);
@@ -640,6 +666,13 @@ function syncPaymentPanels() {
 
     var cardPanel = document.getElementById('card-payment-panel');
     if (cardPanel) cardPanel.hidden = type !== 'card';
+
+    var postcode = document.getElementById('shipping_postcode')?.value || '';
+    if (onlyDigits(postcode).length === 8) {
+        quoteShipping();
+    } else {
+        updateTotals(currentShippingFee());
+    }
 }
 
 document.querySelectorAll('input[name="payment_type"]').forEach(function (radio) {
@@ -651,14 +684,18 @@ setShippingReady(HAS_SHIPPING_QUOTE);
 var initialRate = HAS_SHIPPING_QUOTE ? (RATES[selectedShippingService()] || RATES.pac) : null;
 if (initialRate) selectShipping(selectedShippingService(), Number(initialRate.price), !!initialRate.is_free);
 
-function updateDiscount(isValid, discountLabel) {
+function updateDiscount(isValid) {
     var row = document.getElementById('discount-row');
     var discountEl = document.getElementById('sidebar-discount');
+    var pixRow = document.getElementById('pix-discount-row');
+    var pixDiscountEl = document.getElementById('sidebar-pix-discount');
     var couponNote = document.getElementById('coupon-note');
     var hasCoupon = (document.getElementById('coupon_code')?.value || '').trim() !== '';
 
-    if (row) row.style.display = DISCOUNT > 0 ? '' : 'none';
-    if (discountEl) discountEl.textContent = discountLabel || money(DISCOUNT);
+    if (row) row.style.display = COUPON_DISCOUNT > 0 ? '' : 'none';
+    if (discountEl) discountEl.textContent = '-' + money(COUPON_DISCOUNT);
+    if (pixRow) pixRow.style.display = PIX_DISCOUNT > 0 ? '' : 'none';
+    if (pixDiscountEl) pixDiscountEl.textContent = '-' + money(PIX_DISCOUNT);
 
     if (couponNote) {
         couponNote.textContent = !hasCoupon ? '' : (isValid ? 'Cupom aplicado.' : 'Cupom invalido ou expirado.');
