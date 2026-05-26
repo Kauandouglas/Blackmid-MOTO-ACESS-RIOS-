@@ -1571,6 +1571,12 @@
   box-shadow: 0 0 0 1000px #080d12 inset;
   transition: background-color 9999s ease-in-out 0s;
 }
+.checkout-card-error {
+  padding: 10px 12px;
+  border: 1px solid rgba(239,68,68,.38);
+  border-radius: 8px;
+  background: rgba(239,68,68,.09);
+}
 .mp-secure-field {
   width: 100%;
   height: 46px;

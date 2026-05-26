@@ -263,7 +263,13 @@
                             <select id="form-checkout__installments"></select>
                         </label>
                         <select id="form-checkout__issuer" hidden></select>
-                        <select id="form-checkout__identificationType" hidden></select>
+                        <select id="form-checkout__identificationType" hidden>
+                            <option value="CPF">CPF</option>
+                            <option value="CNPJ">CNPJ</option>
+                        </select>
+                        <input type="hidden" id="form-checkout__identificationNumber">
+                        <input type="hidden" id="form-checkout__cardholderEmail">
+                        <p class="checkout-error-text checkout-card-error" id="card-payment-error" hidden></p>
                     </div>
 
                     <div class="checkout-pix-result" id="pix-result" hidden>
@@ -898,6 +904,63 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
             });
     }
 
+    function setCardError(message) {
+        var errorEl = document.getElementById('card-payment-error');
+        if (!errorEl) return;
+
+        errorEl.hidden = !message;
+        errorEl.textContent = message || '';
+    }
+
+    function syncCardPayerFields() {
+        var email = (document.getElementById('customer_email')?.value || '').trim();
+        var documentNumber = onlyDigits(document.getElementById('customer_document')?.value || '');
+        var emailEl = document.getElementById('form-checkout__cardholderEmail');
+        var documentEl = document.getElementById('form-checkout__identificationNumber');
+        var documentTypeEl = document.getElementById('form-checkout__identificationType');
+
+        if (emailEl) emailEl.value = email;
+        if (documentEl) documentEl.value = documentNumber;
+        if (documentTypeEl) documentTypeEl.value = documentNumber.length > 11 ? 'CNPJ' : 'CPF';
+    }
+
+    function validateCardPayerFields() {
+        syncCardPayerFields();
+
+        var email = (document.getElementById('form-checkout__cardholderEmail')?.value || '').trim();
+        var documentNumber = (document.getElementById('form-checkout__identificationNumber')?.value || '').trim();
+        var holderName = (document.getElementById('form-checkout__cardholderName')?.value || '').trim();
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return 'Informe um e-mail valido antes de pagar com cartao.';
+        }
+
+        if (documentNumber.length !== 11 && documentNumber.length !== 14) {
+            return 'Informe um CPF ou CNPJ valido antes de pagar com cartao.';
+        }
+
+        if (holderName.length < 3) {
+            return 'Informe o nome impresso no cartao.';
+        }
+
+        return '';
+    }
+
+    function cardTokenErrorMessage(errors) {
+        var list = Array.isArray(errors) ? errors : [];
+        var codes = list.map(function (item) {
+            return String(item?.code || item?.cause || item?.field || item?.message || '').toLowerCase();
+        }).join(' ');
+
+        if (/card.*number|number/.test(codes)) return 'Confira o numero do cartao.';
+        if (/security|cvv|code/.test(codes)) return 'Confira o CVV do cartao.';
+        if (/expiration|date/.test(codes)) return 'Confira a validade do cartao no formato MM/AA.';
+        if (/identification|document/.test(codes)) return 'Confira o CPF ou CNPJ informado.';
+        if (/email/.test(codes)) return 'Confira o e-mail informado.';
+
+        return 'Nao foi possivel validar o cartao. Confira numero, validade, CVV, CPF/CNPJ e tente novamente.';
+    }
+
     function normalizeInstallmentsOptions() {
         var installments = document.getElementById('form-checkout__installments');
         var amount = Number(document.getElementById('form-checkout__amount')?.value || 0);
@@ -969,11 +1032,26 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
                     if (isSubmitting) return;
 
                     if (selectedPaymentType() !== 'card') {
+                        setCardError('');
                         submitCheckout();
                         return;
                     }
 
+                    var validationMessage = validateCardPayerFields();
+                    if (validationMessage) {
+                        setCardError(validationMessage);
+                        setSubmitLoading(false);
+                        return;
+                    }
+
                     var formData = cardForm.getCardFormData();
+                    if (!formData.token || !formData.paymentMethodId) {
+                        setCardError('Nao foi possivel gerar o token do cartao. Confira os dados e tente novamente.');
+                        setSubmitLoading(false);
+                        return;
+                    }
+
+                    setCardError('');
                     document.getElementById('mp_token').value = formData.token || '';
                     document.getElementById('mp_payment_method_id').value = formData.paymentMethodId || '';
                     document.getElementById('mp_issuer_id').value = formData.issuerId || '';
@@ -982,6 +1060,13 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
                 },
             },
         });
+
+        ['customer_email', 'customer_document', 'form-checkout__cardholderName'].forEach(function (id) {
+            document.getElementById(id)?.addEventListener('input', syncCardPayerFields);
+            document.getElementById(id)?.addEventListener('change', syncCardPayerFields);
+        });
+        checkoutForm.addEventListener('submit', syncCardPayerFields, true);
+        syncCardPayerFields();
 
         var installmentsSelect = document.getElementById('form-checkout__installments');
         if (installmentsSelect) {
