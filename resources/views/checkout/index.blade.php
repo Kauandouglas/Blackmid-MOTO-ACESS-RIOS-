@@ -819,6 +819,16 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
         if (!isLoading && HAS_SHIPPING_QUOTE) submitBtn.disabled = false;
     }
 
+    checkoutForm.addEventListener('submit', function (event) {
+        if (selectedPaymentType() !== 'pix') return;
+        if (isSubmitting) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setCardError('');
+        submitCheckout();
+    }, true);
+
     function showPixPayment(data) {
         var panel = document.getElementById('pix-result');
         var qrWrap = document.getElementById('pix-qr-wrap');
