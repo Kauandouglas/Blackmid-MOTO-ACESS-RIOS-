@@ -12,8 +12,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="{{ asset('motoacessorios/style.css') }}">
     @php
+        $storeStylePath = public_path('motoacessorios/style.css');
+        $storeScriptPath = public_path('motoacessorios/script.js');
+        $storeStyleVersion = file_exists($storeStylePath) ? filemtime($storeStylePath) : now()->timestamp;
+        $storeScriptVersion = file_exists($storeScriptPath) ? filemtime($storeScriptPath) : now()->timestamp;
         $fbPixelConfig = trim((string) config('store.pixel.facebook', ''));
         $fbPixelIsScript = str_contains($fbPixelConfig, '<script') || str_contains($fbPixelConfig, '<noscript') || str_contains($fbPixelConfig, '</script>');
         $navItems = ($navigationItems ?? collect());
@@ -28,6 +31,7 @@
             ['title' => 'Acessórios', 'slug' => 'acessorios', 'key' => 'acessorios'],
         ]);
     @endphp
+    <link rel="stylesheet" href="{{ asset('motoacessorios/style.css') }}?v={{ $storeStyleVersion }}">
     @if($fbPixelConfig)
         @if($fbPixelIsScript)
             {!! trim($fbPixelConfig) !!}
@@ -223,7 +227,7 @@
     <a class="floating-whats" href="{{ config('app.contact.whatsapp_url', '#') }}" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
     <button class="to-top" aria-label="Voltar ao topo"><i class="fa-solid fa-angle-up"></i></button>
 
-    <script src="{{ asset('motoacessorios/script.js') }}"></script>
+    <script src="{{ asset('motoacessorios/script.js') }}?v={{ $storeScriptVersion }}"></script>
     @stack('pixel_events')
 </body>
 </html>
