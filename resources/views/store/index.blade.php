@@ -121,7 +121,7 @@
 
 <section class="proof">
     <div class="container proof-grid">
-        <article><i class="fa-regular fa-calendar"></i><div><h4>Desde 1994</h4><p>Realizando sonhos</p></div></article>
+        <article><i class="fa-regular fa-calendar"></i><div><h4>Desde 2008</h4><p>Realizando sonhos</p></div></article>
         <article><i class="fa-regular fa-user"></i><div><h4>+10 mil clientes</h4><p>Satisfeitos</p></div></article>
         <article><i class="fa-solid fa-shield-halved"></i><div><h4>Qualidade garantida</h4><p>Produtos originais</p></div></article>
         <article><i class="fa-solid fa-headset"></i><div><h4>Suporte especializado</h4><p>Atendimento humanizado</p></div></article>

@@ -17,7 +17,7 @@
             @if($searchQuery === '')
                 Use filtros para encontrar produtos por nome, descricao ou categoria.
             @else
-                {{ $products->count() }} {{ $products->count() === 1 ? 'produto encontrado' : 'produtos encontrados' }}.
+                {{ $products->total() }} {{ $products->total() === 1 ? 'produto encontrado' : 'produtos encontrados' }}.
             @endif
         </p>
     </div>
@@ -59,6 +59,15 @@
                     Mostrar apenas disponiveis
                 </label>
 
+                <div>
+                    <label for="search-sort">Ordenar</label>
+                    <select id="search-sort" name="sort">
+                        <option value="relevance" @selected(($sort ?? 'relevance') === 'relevance')>Mais relevantes</option>
+                        <option value="price_asc" @selected(($sort ?? 'relevance') === 'price_asc')>Menor valor</option>
+                        <option value="price_desc" @selected(($sort ?? 'relevance') === 'price_desc')>Maior valor</option>
+                    </select>
+                </div>
+
                 <div class="filter-actions">
                     <button type="submit" class="btn btn-green">Filtrar</button>
                     <a href="{{ route('store.search') }}" class="btn btn-outline">Limpar</a>
@@ -79,10 +88,21 @@
                     <a href="{{ route('store.index') }}" class="btn btn-green">VER TODA A LOJA</a>
                 </div>
             @else
+                <div class="catalog-toolbar">
+                    <p>
+                        Exibindo {{ $products->firstItem() }}-{{ $products->lastItem() }}
+                        de {{ $products->total() }}
+                    </p>
+                </div>
+
                 <div class="product-grid">
                     @foreach ($products as $product)
                         @include('store.partials.product-card', ['product' => $product])
                     @endforeach
+                </div>
+
+                <div class="catalog-pagination">
+                    {{ $products->links() }}
                 </div>
             @endif
         </div>

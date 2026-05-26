@@ -156,6 +156,54 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+.catalog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0c1015;
+}
+.catalog-toolbar p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.catalog-toolbar form {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.catalog-toolbar label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.catalog-toolbar select {
+  min-width: 180px;
+  height: 42px;
+  border: 1px solid #26313d;
+  border-radius: 8px;
+  background: #080d12;
+  color: var(--text);
+  padding: 0 12px;
+  outline: none;
+}
+.catalog-pagination {
+  margin-top: 24px;
+}
+.catalog-pagination nav > div:first-child {
+  color: var(--muted);
+}
+.catalog-pagination nav span,
+.catalog-pagination nav a {
+  border-color: #26313d !important;
+}
 .contact-hero,
 .auth-page,
 .cart-page,
@@ -1440,15 +1488,44 @@
   border-radius: 8px;
   background: #0b1016;
 }
+.checkout-payment-card .checkout-field input,
+.checkout-payment-card .checkout-field select {
+  height: 46px;
+  min-height: 46px;
+  background: #080d12 !important;
+  color: var(--text) !important;
+  caret-color: var(--green);
+}
+.checkout-payment-card .checkout-field input:-webkit-autofill,
+.checkout-payment-card .checkout-field input:-webkit-autofill:hover,
+.checkout-payment-card .checkout-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  box-shadow: 0 0 0 1000px #080d12 inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
 .mp-secure-field {
   width: 100%;
+  height: 46px;
   min-height: 46px;
+  max-height: 46px;
+  display: flex;
+  align-items: center;
   border: 1px solid #2a3542;
   border-radius: 8px;
   background: #080d12;
   color: var(--text);
-  padding: 12px 13px;
+  padding: 0 13px;
+  overflow: hidden;
   transition: border-color .2s ease, box-shadow .2s ease;
+}
+.mp-secure-field iframe {
+  width: 100% !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  max-height: 24px !important;
+  display: block !important;
+  border: 0 !important;
+  background: transparent !important;
 }
 .mp-secure-field:focus-within {
   border-color: var(--green);
@@ -2326,6 +2403,17 @@ body.lightbox-open {
   .checkout-title {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .catalog-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .catalog-toolbar form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .catalog-toolbar select {
+    width: 100%;
   }
   .checkout-field-grid--two,
   .checkout-payment-switch,

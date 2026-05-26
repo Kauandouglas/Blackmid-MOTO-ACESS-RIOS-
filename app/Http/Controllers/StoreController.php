@@ -42,8 +42,10 @@ class StoreController extends Controller
         ]);
     }
 
-    public function category(string $slug): View
+    public function category(Request $request, string $slug): View
     {
+        $sort = $this->validatedSort($request->string('sort')->toString());
+
         $category = Category::query()
             ->where('slug', $slug)
             ->where('active', true)
@@ -63,14 +65,15 @@ class StoreController extends Controller
                 $query->whereIn('category_id', $categoryIds)
                     ->orWhereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds));
             })
-            ->orderByDesc('featured')
-            ->orderBy('name')
-            ->get();
+            ->tap(fn ($query) => $this->applyProductSort($query, $sort))
+            ->paginate(10)
+            ->withQueryString();
 
         return view('store.category', [
             'category'   => $category,
             'categories' => $categories,
             'products'   => $products,
+            'sort'       => $sort,
             'cartCount'  => $this->cartCount(),
         ]);
     }
@@ -82,6 +85,7 @@ class StoreController extends Controller
         $minPrice = $request->filled('min_price') ? (float) $request->input('min_price') : null;
         $maxPrice = $request->filled('max_price') ? (float) $request->input('max_price') : null;
         $inStockOnly = $request->boolean('in_stock');
+        $sort = $this->validatedSort($request->string('sort')->toString());
 
         $categories = Category::query()
             ->where('active', true)
@@ -103,9 +107,9 @@ class StoreController extends Controller
                 $q->where('track_stock', false)
                     ->orWhere('stock', '>', 0);
             }))
-            ->orderByDesc('featured')
-            ->orderBy('name')
-            ->get();
+            ->tap(fn ($query) => $this->applyProductSort($query, $sort))
+            ->paginate(10)
+            ->withQueryString();
 
         return view('store.search', [
             'categories' => $categories,
@@ -115,6 +119,7 @@ class StoreController extends Controller
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
             'inStockOnly' => $inStockOnly,
+            'sort' => $sort,
             'cartCount' => $this->cartCount(),
         ]);
     }
@@ -217,6 +222,22 @@ class StoreController extends Controller
             $categoryQuery->whereIn('category_id', $categoryIds)
                 ->orWhereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds));
         });
+    }
+
+    private function validatedSort(string $sort): string
+    {
+        return in_array($sort, ['relevance', 'price_asc', 'price_desc'], true)
+            ? $sort
+            : 'relevance';
+    }
+
+    private function applyProductSort($query, string $sort)
+    {
+        return match ($sort) {
+            'price_asc' => $query->orderBy('price')->orderByDesc('featured')->orderBy('name'),
+            'price_desc' => $query->orderByDesc('price')->orderByDesc('featured')->orderBy('name'),
+            default => $query->orderByDesc('featured')->orderBy('name'),
+        };
     }
 
     private function categoryIdsForDisplay(Category $category): array

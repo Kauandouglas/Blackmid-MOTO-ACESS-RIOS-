@@ -454,6 +454,9 @@ function updateTotals(shippingFee) {
     if (totalEl) totalEl.textContent = money(total);
     if (amountEl) amountEl.value = Number(total || 0).toFixed(2);
     updateDiscount();
+    if (typeof window.normalizeInstallmentsOptions === 'function') {
+        window.normalizeInstallmentsOptions();
+    }
 }
 
 function selectShipping(service, price, isFree) {
@@ -895,6 +898,34 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
             });
     }
 
+    function normalizeInstallmentsOptions() {
+        var installments = document.getElementById('form-checkout__installments');
+        var amount = Number(document.getElementById('form-checkout__amount')?.value || 0);
+        if (!installments) return;
+
+        Array.from(installments.options).forEach(function (option) {
+            var value = Number(option.value || 0);
+            if (value > 2) {
+                option.remove();
+                return;
+            }
+
+            if (value === 1) {
+                option.textContent = '1 parcela de ' + money(amount) + ' sem juros';
+            }
+
+            if (value === 2) {
+                option.textContent = '2 parcelas de ' + money(amount / 2) + ' sem juros';
+            }
+        });
+
+        if (!installments.options.length && amount > 0) {
+            installments.add(new Option('1 parcela de ' + money(amount) + ' sem juros', '1'));
+            installments.add(new Option('2 parcelas de ' + money(amount / 2) + ' sem juros', '2'));
+        }
+    }
+    window.normalizeInstallmentsOptions = normalizeInstallmentsOptions;
+
     if (MP_PUBLIC_KEY && window.MercadoPago) {
         var mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
         cardForm = mp.cardForm({
@@ -915,6 +946,10 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
             callbacks: {
                 onFormMounted: function (error) {
                     if (error) console.warn('Mercado Pago card form error', error);
+                    normalizeInstallmentsOptions();
+                },
+                onFetching: function () {
+                    setTimeout(normalizeInstallmentsOptions, 250);
                 },
                 onSubmit: function (event) {
                     event.preventDefault();
@@ -934,6 +969,13 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
                 },
             },
         });
+
+        var installmentsSelect = document.getElementById('form-checkout__installments');
+        if (installmentsSelect) {
+            installmentsSelect.addEventListener('focus', normalizeInstallmentsOptions);
+            installmentsSelect.addEventListener('change', normalizeInstallmentsOptions);
+            new MutationObserver(normalizeInstallmentsOptions).observe(installmentsSelect, { childList: true });
+        }
     } else {
         checkoutForm.addEventListener('submit', function (event) {
             event.preventDefault();
