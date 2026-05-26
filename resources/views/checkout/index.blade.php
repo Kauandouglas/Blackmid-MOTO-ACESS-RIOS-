@@ -1004,37 +1004,25 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
         var mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
         var secureFieldStyle = {
             color: '#f4f7f8',
-            backgroundColor: '#080d12',
             fontSize: '16px',
             fontFamily: 'Barlow, Arial, sans-serif',
             fontWeight: '700',
             placeholderColor: '#7d8790',
+            padding: '0',
         };
-        var secureFieldStyles = {
-            input: secureFieldStyle,
-            ':focus': {
-                color: '#ffffff',
-                placeholderColor: '#6f7a85',
-            },
-            '::placeholder': {
-                color: '#7d8790',
-            },
-        };
+        function repaintSecureFields() {
+            if (!cardForm || typeof cardForm.update !== 'function') return;
+            ['cardNumber', 'expirationDate', 'securityCode'].forEach(function (field) {
+                cardForm.update({ field: field, style: secureFieldStyle });
+            });
+        }
         cardForm = mp.cardForm({
             amount: document.getElementById('form-checkout__amount')?.value || '0.00',
             iframe: true,
             style: {
-                customVariables: {
-                    formBackgroundColor: '#080d12',
-                    baseColor: '#f4f7f8',
-                    baseColorFirstVariant: '#f4f7f8',
-                    inputBackgroundColor: '#080d12',
-                    inputTextColor: '#f4f7f8',
-                    inputPlaceholderColor: '#7d8790',
-                },
-                cardNumber: secureFieldStyles,
-                expirationDate: secureFieldStyles,
-                securityCode: secureFieldStyles,
+                cardNumber: secureFieldStyle,
+                expirationDate: secureFieldStyle,
+                securityCode: secureFieldStyle,
             },
             form: {
                 id: 'checkout-form',
@@ -1052,6 +1040,7 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
                 onFormMounted: function (error) {
                     if (error) console.warn('Mercado Pago card form error', error);
                     normalizeInstallmentsOptions();
+                    setTimeout(repaintSecureFields, 150);
                 },
                 onFetching: function () {
                     setTimeout(normalizeInstallmentsOptions, 250);
