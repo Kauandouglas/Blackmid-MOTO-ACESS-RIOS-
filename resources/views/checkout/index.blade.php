@@ -866,6 +866,43 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
         }, 5000);
     }
 
+    function startCardPolling(data) {
+        if (!data.status_url) return;
+
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+
+            fetch(data.status_url, { headers: { 'Accept': 'application/json' } })
+                .then(parseJsonResponse)
+                .then(function (statusData) {
+                    if (statusData.paid && statusData.success_url) {
+                        clearInterval(timer);
+                        setCardNotice('Pagamento aprovado. Redirecionando...', 'success');
+                        window.location.href = statusData.success_url;
+                        return;
+                    }
+
+                    if (statusData.final && statusData.status === 'rejected') {
+                        clearInterval(timer);
+                        setCardNotice(statusData.message || 'Pagamento recusado. Tente outro cartao ou Pix.', 'error');
+                        setSubmitLoading(false);
+                        return;
+                    }
+
+                    if (statusData.message) {
+                        setCardNotice(statusData.message, 'info');
+                    }
+                })
+                .catch(function () {});
+
+            if (attempts >= 60) {
+                clearInterval(timer);
+                setSubmitLoading(false);
+            }
+        }, 5000);
+    }
+
     function submitCheckout() {
         trackAddPaymentInfo(selectedPaymentType());
         setSubmitLoading(true);
@@ -906,20 +943,37 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
                     return;
                 }
 
-                throw new Error(data.message || 'Pagamento em analise. Aguarde a confirmacao.');
+                if (data.payment_type === 'card' && (data.status === 'in_process' || data.status === 'pending')) {
+                    setCardNotice(data.message || 'Pagamento em analise pelo Mercado Pago. Vamos atualizar automaticamente.', 'info');
+                    startCardPolling(data);
+                    return;
+                }
+
+                throw new Error(data.message || 'Nao foi possivel confirmar o pagamento agora.');
             })
             .catch(function (error) {
-                alert(error.message || 'Erro ao processar pagamento.');
+                if (selectedPaymentType() === 'card') {
+                    setCardNotice(error.message || 'Erro ao processar pagamento.', 'error');
+                } else {
+                    alert(error.message || 'Erro ao processar pagamento.');
+                }
                 setSubmitLoading(false);
             });
     }
 
-    function setCardError(message) {
+    function setCardNotice(message, type) {
         var errorEl = document.getElementById('card-payment-error');
         if (!errorEl) return;
 
         errorEl.hidden = !message;
         errorEl.textContent = message || '';
+        errorEl.classList.toggle('is-info', type === 'info');
+        errorEl.classList.toggle('is-success', type === 'success');
+        errorEl.classList.toggle('is-error', !type || type === 'error');
+    }
+
+    function setCardError(message) {
+        setCardNotice(message, 'error');
     }
 
     function syncCardPayerFields() {

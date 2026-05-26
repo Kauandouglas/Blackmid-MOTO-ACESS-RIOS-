@@ -13,10 +13,10 @@
 
     $categoryImages = [
         'capacetes' => 'https://images.tcdn.com.br/files/490060/themes/203/img/settings/CAP.png',
-        'pecas' => 'https://images.tcdn.com.br/files/490060/themes/203/img/settings/POL.png',
-        'eletrica' => 'https://images.tcdn.com.br/files/490060/themes/203/img/settings/IJM.png',
+        'pecas' => 'https://motoacessorios.com.br/storage/products/af35cda9-01b7-4b44-9d4c-5d1c5a9bcf77.webp',
+        'eletrica' => 'https://motoacessorios.com.br/storage/products/cab678dc-e96d-4cce-8fff-3abf185c4a81.webp',
         'vestuario' => 'https://images.tcdn.com.br/files/490060/themes/203/img/settings/jaqueta.png',
-        'acessorios' => 'https://images.tcdn.com.br/files/490060/themes/203/img/settings/moto.png',
+        'acessorios' => 'https://motoacessorios.com.br/storage/products/9f4cc36d-5230-44b5-91d3-b510fdc1f745.webp',
     ];
     $preferredSlugs = ['capacetes', 'pecas', 'eletrica', 'vestuario', 'acessorios'];
     $homeCategories = collect($preferredSlugs)

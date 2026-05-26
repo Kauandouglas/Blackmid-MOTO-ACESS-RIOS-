@@ -1582,6 +1582,21 @@
   border-radius: 8px;
   background: rgba(239,68,68,.09);
 }
+.checkout-card-error.is-info {
+  border-color: rgba(234,179,8,.38);
+  background: rgba(234,179,8,.10);
+  color: #fde68a;
+}
+.checkout-card-error.is-success {
+  border-color: rgba(34,197,94,.42);
+  background: rgba(34,197,94,.10);
+  color: #bbf7d0;
+}
+.checkout-card-error.is-error {
+  border-color: rgba(239,68,68,.38);
+  background: rgba(239,68,68,.09);
+  color: #fecaca;
+}
 .mp-secure-field {
   width: 100%;
   height: 46px;

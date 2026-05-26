@@ -449,6 +449,33 @@ class CheckoutController extends Controller
                         'success_url' => route('checkout.success', $order),
                     ]);
                 }
+
+                if (($payment['status'] ?? '') === 'rejected') {
+                    $detail = (string) ($payment['status_detail'] ?? '');
+
+                    $order->update([
+                        'status' => 'payment_cancelled',
+                    ]);
+
+                    return response()->json([
+                        'paid' => false,
+                        'final' => true,
+                        'status' => 'rejected',
+                        'status_detail' => $detail,
+                        'message' => $this->cardStatusMessage('rejected', $detail),
+                    ]);
+                }
+
+                return response()->json([
+                    'paid' => false,
+                    'final' => false,
+                    'status' => $payment['status'] ?? $order->status,
+                    'status_detail' => $payment['status_detail'] ?? '',
+                    'message' => $this->cardStatusMessage(
+                        (string) ($payment['status'] ?? ''),
+                        (string) ($payment['status_detail'] ?? '')
+                    ),
+                ]);
             } catch (RuntimeException $exception) {
                 Log::warning('Falha ao consultar status do pagamento', [
                     'order_id' => $order->id,
@@ -459,6 +486,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'paid' => false,
+            'final' => $order->status === 'payment_cancelled',
             'status' => $order->status,
         ]);
     }
@@ -658,6 +686,7 @@ class CheckoutController extends Controller
                     'status' => $status,
                     'status_detail' => $payment['status_detail'] ?? '',
                     'message' => $this->cardStatusMessage($status, (string) ($payment['status_detail'] ?? '')),
+                    'status_url' => route('checkout.payment.status', $order),
                 ], $status === 'rejected' ? 422 : 202);
             }
 
@@ -689,7 +718,7 @@ class CheckoutController extends Controller
     private function cardStatusMessage(string $status, string $detail): string
     {
         if ($status === 'in_process' || $status === 'pending') {
-            return 'Pagamento em analise. Assim que for aprovado, atualizaremos o pedido.';
+            return 'Pagamento em analise pelo Mercado Pago. Esta compra ainda nao foi recusada; vamos atualizar automaticamente assim que houver resposta.';
         }
 
         $messages = [
@@ -698,6 +727,11 @@ class CheckoutController extends Controller
             'cc_rejected_bad_filled_security_code' => 'Confira o codigo de seguranca e tente novamente.',
             'cc_rejected_insufficient_amount' => 'Saldo ou limite insuficiente para concluir a compra.',
             'cc_rejected_high_risk' => 'Pagamento recusado pela analise de seguranca. Tente outro cartao ou Pix.',
+            'cc_rejected_blacklist' => 'Pagamento recusado pela operadora. Tente outro cartao ou Pix.',
+            'cc_rejected_call_for_authorize' => 'A operadora pediu autorizacao do titular. Entre em contato com o banco ou tente outro cartao.',
+            'cc_rejected_card_disabled' => 'Cartao desabilitado. Fale com o banco ou tente outro cartao.',
+            'cc_rejected_duplicated_payment' => 'Existe um pagamento parecido em processamento. Aguarde alguns minutos antes de tentar novamente.',
+            'cc_rejected_max_attempts' => 'Limite de tentativas atingido. Tente outro cartao ou Pix.',
             'cc_rejected_other_reason' => 'Pagamento recusado. Tente outro cartao ou Pix.',
         ];
 
