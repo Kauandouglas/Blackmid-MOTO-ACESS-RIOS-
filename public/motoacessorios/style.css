@@ -212,14 +212,65 @@
   box-shadow: 0 0 0 3px rgba(0,214,79,.08);
 }
 .catalog-pagination {
-  margin-top: 24px;
+  margin-top: 26px;
 }
-.catalog-pagination nav > div:first-child {
+.store-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.store-pagination__summary {
   color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
-.catalog-pagination nav span,
-.catalog-pagination nav a {
-  border-color: #26313d !important;
+.store-pagination__links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.store-pagination__page,
+.store-pagination__control,
+.store-pagination__dots {
+  min-width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #26313d;
+  border-radius: 8px;
+  background: #080d12;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+  transition: border-color .2s ease, background .2s ease, color .2s ease, transform .2s ease;
+}
+.store-pagination__page:hover,
+.store-pagination__control:hover {
+  border-color: rgba(0,214,79,.58);
+  color: var(--green);
+  transform: translateY(-1px);
+}
+.store-pagination__page.is-active {
+  border-color: var(--green);
+  background: var(--green);
+  color: #021109;
+}
+.store-pagination__control.is-disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+.store-pagination__dots {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
 }
 .contact-hero,
 .auth-page,
@@ -1530,7 +1581,8 @@
   border: 1px solid #2a3542;
   border-radius: 8px;
   background: #080d12;
-  color: var(--text);
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text);
   padding: 0 13px;
   overflow: hidden;
   transition: border-color .2s ease, box-shadow .2s ease;
@@ -1543,6 +1595,7 @@
   display: block !important;
   border: 0 !important;
   background: transparent !important;
+  color-scheme: dark;
 }
 .mp-secure-field:focus-within {
   border-color: var(--green);
@@ -2430,6 +2483,16 @@ body.lightbox-open {
   }
   .catalog-toolbar select {
     width: 100%;
+  }
+  .store-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .store-pagination__links {
+    justify-content: center;
+  }
+  .store-pagination__summary {
+    text-align: center;
   }
   .checkout-field-grid--two,
   .checkout-payment-switch,

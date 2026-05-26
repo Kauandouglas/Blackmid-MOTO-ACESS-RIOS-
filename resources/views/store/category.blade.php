@@ -42,7 +42,7 @@
             </div>
 
             <div class="catalog-pagination">
-                {{ $products->links() }}
+                {{ $products->links('store.partials.pagination') }}
             </div>
         @endif
     </div>

@@ -203,7 +203,7 @@ class CheckoutController extends Controller
             'mp_token'         => ['required_if:payment_type,card', 'nullable', 'string', 'max:200'],
             'mp_payment_method_id' => ['required_if:payment_type,card', 'nullable', 'string', 'max:60'],
             'mp_issuer_id'     => ['nullable', 'string', 'max:60'],
-            'mp_installments'  => ['nullable', 'integer', 'min:1', 'max:2'],
+            'mp_installments'  => ['nullable', 'integer', 'min:1', 'max:12'],
             'coupon_code'      => ['nullable', 'string', 'max:40'],
             'newsletter_opt_in' => ['nullable', 'boolean'],
             'save_info' => ['nullable', 'boolean'],

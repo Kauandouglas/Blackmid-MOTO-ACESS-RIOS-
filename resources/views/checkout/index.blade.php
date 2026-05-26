@@ -905,10 +905,7 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
 
         Array.from(installments.options).forEach(function (option) {
             var value = Number(option.value || 0);
-            if (value > 2) {
-                option.remove();
-                return;
-            }
+            if (!value) return;
 
             if (value === 1) {
                 option.textContent = '1 parcela de ' + money(amount) + ' sem juros';
@@ -916,6 +913,10 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
 
             if (value === 2) {
                 option.textContent = '2 parcelas de ' + money(amount / 2) + ' sem juros';
+            }
+
+            if (value > 2 && !/juros/i.test(option.textContent)) {
+                option.textContent = option.textContent + ' com juros';
             }
         });
 
@@ -928,9 +929,21 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
 
     if (MP_PUBLIC_KEY && window.MercadoPago) {
         var mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
+        var secureFieldStyle = {
+            color: '#f4f7f8',
+            fontSize: '16px',
+            fontFamily: 'Barlow, Arial, sans-serif',
+            fontWeight: '700',
+            placeholderColor: '#7d8790',
+        };
         cardForm = mp.cardForm({
             amount: document.getElementById('form-checkout__amount')?.value || '0.00',
             iframe: true,
+            style: {
+                cardNumber: secureFieldStyle,
+                expirationDate: secureFieldStyle,
+                securityCode: secureFieldStyle,
+            },
             form: {
                 id: 'checkout-form',
                 cardholderName: { id: 'form-checkout__cardholderName', placeholder: 'Nome como esta no cartao' },

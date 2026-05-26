@@ -87,7 +87,7 @@ class MercadoPagoPaymentService
                     ['id' => 'atm'],
                     ['id' => 'ticket'],
                 ],
-                'installments' => 2,
+                'installments' => 12,
             ],
             'metadata'         => [
                 'order_id' => $order->id,
@@ -128,7 +128,7 @@ class MercadoPagoPaymentService
         return $this->createPayment($order, [
             'payment_method_id' => 'pix',
             'payer' => $this->payerPayload($order, $payer),
-            'date_of_expiration' => now()->addMinutes(30)->toIso8601String(),
+            'date_of_expiration' => now()->addMinutes(31)->format('Y-m-d\TH:i:s.000P'),
         ]);
     }
 
@@ -143,7 +143,7 @@ class MercadoPagoPaymentService
 
         return $this->createPayment($order, [
             'token' => $token,
-            'installments' => max(1, min(2, (int) ($paymentData['installments'] ?? 1))),
+            'installments' => max(1, min(12, (int) ($paymentData['installments'] ?? 1))),
             'issuer_id' => trim((string) ($paymentData['issuer_id'] ?? '')) ?: null,
             'payment_method_id' => $paymentMethodId,
             'payer' => $this->payerPayload($order, $payer),
