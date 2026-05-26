@@ -13,6 +13,7 @@ class AdminPaymentController extends Controller
     private const KEYS = [
         'payments.mercadopago.enabled',
         'payments.mercadopago.access_token',
+        'payments.mercadopago.public_key',
         'payments.mercadopago.webhook_secret',
     ];
 
@@ -24,6 +25,7 @@ class AdminPaymentController extends Controller
         $settings = [
             'payments.mercadopago.enabled'      => $saved['payments.mercadopago.enabled'] ?? '1',
             'payments.mercadopago.access_token' => $saved['payments.mercadopago.access_token'] ?? config('services.mercadopago.access_token'),
+            'payments.mercadopago.public_key' => $saved['payments.mercadopago.public_key'] ?? config('services.mercadopago.public_key'),
             'payments.mercadopago.webhook_secret' => $saved['payments.mercadopago.webhook_secret'] ?? config('services.mercadopago.webhook_secret'),
         ];
 
@@ -35,12 +37,14 @@ class AdminPaymentController extends Controller
         $data = $request->validate([
             'mercadopago_enabled'       => ['nullable', 'in:0,1'],
             'mercadopago_access_token'  => ['nullable', 'string', 'max:500'],
+            'mercadopago_public_key'    => ['nullable', 'string', 'max:500'],
             'mercadopago_webhook_secret' => ['nullable', 'string', 'max:500'],
         ]);
 
         StoreSetting::setMany([
             'payments.mercadopago.enabled'        => $data['mercadopago_enabled'] ?? '1',
             'payments.mercadopago.access_token'   => $data['mercadopago_access_token'] ?? null,
+            'payments.mercadopago.public_key'     => $data['mercadopago_public_key'] ?? null,
             'payments.mercadopago.webhook_secret' => $data['mercadopago_webhook_secret'] ?? null,
         ]);
 

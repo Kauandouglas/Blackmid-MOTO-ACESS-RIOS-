@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Order;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class MercadoPagoPaymentService
@@ -86,7 +87,7 @@ class MercadoPagoPaymentService
                     ['id' => 'atm'],
                     ['id' => 'ticket'],
                 ],
-                'installments' => 12,
+                'installments' => 2,
             ],
             'metadata'         => [
                 'order_id' => $order->id,
@@ -119,6 +120,93 @@ class MercadoPagoPaymentService
         return [
             'id'         => $data['id'] ?? null,
             'init_point' => $data['init_point'],
+        ];
+    }
+
+    public function createPixPayment(Order $order, array $payer): array
+    {
+        return $this->createPayment($order, [
+            'payment_method_id' => 'pix',
+            'payer' => $this->payerPayload($order, $payer),
+            'date_of_expiration' => now()->addMinutes(30)->toIso8601String(),
+        ]);
+    }
+
+    public function createCardPayment(Order $order, array $paymentData, array $payer): array
+    {
+        $token = trim((string) ($paymentData['token'] ?? ''));
+        $paymentMethodId = trim((string) ($paymentData['payment_method_id'] ?? ''));
+
+        if ($token === '' || $paymentMethodId === '') {
+            throw new RuntimeException('Dados do cartao incompletos. Confira as informacoes e tente novamente.');
+        }
+
+        return $this->createPayment($order, [
+            'token' => $token,
+            'installments' => max(1, min(2, (int) ($paymentData['installments'] ?? 1))),
+            'issuer_id' => trim((string) ($paymentData['issuer_id'] ?? '')) ?: null,
+            'payment_method_id' => $paymentMethodId,
+            'payer' => $this->payerPayload($order, $payer),
+        ]);
+    }
+
+    private function createPayment(Order $order, array $payload): array
+    {
+        $accessToken = (string) config('services.mercadopago.access_token');
+
+        if (empty($accessToken)) {
+            throw new RuntimeException('MERCADO_PAGO_ACCESS_TOKEN nao configurada.');
+        }
+
+        $payload = array_replace_recursive([
+            'transaction_amount' => round(max(0.01, (float) $order->total), 2),
+            'description' => 'Pedido ' . $order->number,
+            'external_reference' => (string) $order->id,
+            'notification_url' => route('webhooks.mercadopago'),
+            'statement_descriptor' => Str::limit(preg_replace('/[^A-Z0-9 ]/i', '', (string) config('app.name')), 22, ''),
+            'metadata' => [
+                'order_id' => $order->id,
+                'order_number' => $order->number,
+            ],
+        ], $payload);
+
+        $payload = array_filter($payload, fn ($value) => $value !== null);
+
+        $response = Http::withToken($accessToken)
+            ->withHeaders(['X-Idempotency-Key' => (string) Str::uuid()])
+            ->post('https://api.mercadopago.com/v1/payments', $payload);
+
+        if (! $response->successful()) {
+            Log::error('Mercado Pago payment falhou', [
+                'order_id' => $order->id,
+                'status' => $response->status(),
+                'response' => $response->json(),
+            ]);
+
+            $mpError = $response->json('message')
+                ?? $response->json('error')
+                ?? 'Nao foi possivel processar o pagamento agora.';
+
+            throw new RuntimeException($mpError);
+        }
+
+        return $response->json();
+    }
+
+    private function payerPayload(Order $order, array $payer): array
+    {
+        $document = preg_replace('/\D+/', '', (string) ($payer['document'] ?? $order->customer_document));
+        $documentType = strlen($document) > 11 ? 'CNPJ' : 'CPF';
+        $nameParts = preg_split('/\s+/', trim((string) $order->customer_name), 2) ?: [];
+
+        return [
+            'email' => $order->customer_email,
+            'first_name' => $nameParts[0] ?? $order->customer_name,
+            'last_name' => $nameParts[1] ?? '',
+            'identification' => [
+                'type' => $payer['document_type'] ?? $documentType,
+                'number' => $document,
+            ],
         ];
     }
 

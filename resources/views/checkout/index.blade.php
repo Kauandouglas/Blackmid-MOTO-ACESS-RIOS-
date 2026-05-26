@@ -42,7 +42,11 @@
         @php
             $hasInitialShippingQuote = old('shipping_postcode') && old('shipping_method');
             $selectedInitialShipping = old('shipping_method', 'pac');
-            $displayTotal = $hasInitialShippingQuote ? $total : max(0, $subtotal - ($discount ?? 0));
+            $selectedInitialPaymentType = old('payment_type', 'pix');
+            $couponDiscount = (float) ($discount ?? 0);
+            $pixDiscount = $selectedInitialPaymentType === 'pix' ? round(max(0, $subtotal - $couponDiscount) * 0.05, 2) : 0.0;
+            $displayDiscount = $couponDiscount + $pixDiscount;
+            $displayTotal = ($hasInitialShippingQuote ? $shipping : 0) + max(0, $subtotal - $displayDiscount);
         @endphp
 
         <div class="checkout-layout">
@@ -198,27 +202,85 @@
                     <span><i class="fa-solid fa-credit-card"></i></span>
                     <div>
                         <h2>Pagamento</h2>
-                        <p>Voce sera direcionado para concluir com seguranca.</p>
+                        <p>Escolha Pix ou cartao e finalize sem sair do site.</p>
                     </div>
                 </div>
 
-                <div class="checkout-options">
-                    @if(in_array('mercadopago', $enabledGateways))
-                        <label class="checkout-option checkout-option--payment {{ old('payment_method', 'mercadopago') === 'mercadopago' ? 'is-selected' : '' }}">
-                            <input type="radio" name="payment_method" value="mercadopago" {{ old('payment_method', 'mercadopago') === 'mercadopago' ? 'checked' : '' }} required>
-                            <span class="checkout-option__icon"><i class="fa-solid fa-wallet"></i></span>
+                @if(in_array('mercadopago', $enabledGateways))
+                    <input type="hidden" name="payment_method" value="mercadopago">
+                    <input type="hidden" name="mp_token" id="mp_token">
+                    <input type="hidden" name="mp_payment_method_id" id="mp_payment_method_id">
+                    <input type="hidden" name="mp_issuer_id" id="mp_issuer_id">
+                    <input type="hidden" name="mp_installments" id="mp_installments">
+                    <input type="hidden" id="form-checkout__amount" value="{{ number_format($displayTotal, 2, '.', '') }}">
+
+                    <div class="checkout-options checkout-payment-switch">
+                        <label class="checkout-option checkout-option--payment {{ old('payment_type', 'pix') === 'pix' ? 'is-selected' : '' }}">
+                            <input type="radio" name="payment_type" value="pix" {{ old('payment_type', 'pix') === 'pix' ? 'checked' : '' }} required>
+                            <span class="checkout-option__icon"><i class="fa-brands fa-pix"></i></span>
                             <span class="checkout-option__body">
-                                <strong>Mercado Pago</strong>
-                                <small>Cartao e Pix</small>
+                                <strong>Pix</strong>
+                                <small>5% OFF no Pix</small>
+                            </span>
+                            <b>Instantaneo</b>
+                        </label>
+
+                        <label class="checkout-option checkout-option--payment {{ old('payment_type') === 'card' ? 'is-selected' : '' }}">
+                            <input type="radio" name="payment_type" value="card" {{ old('payment_type') === 'card' ? 'checked' : '' }} required>
+                            <span class="checkout-option__icon"><i class="fa-regular fa-credit-card"></i></span>
+                            <span class="checkout-option__body">
+                                <strong>Cartao</strong>
+                                <small>Ate 2x sem juros</small>
                             </span>
                             <b>Seguro</b>
                         </label>
-                    @endif
+                    </div>
 
-                    @if(empty($enabledGateways))
-                        <p class="checkout-error-text">Nenhum metodo de pagamento disponivel no momento.</p>
-                    @endif
-                </div>
+                    <div class="checkout-payment-card" id="card-payment-panel" hidden>
+                        @if(empty($mercadoPagoPublicKey))
+                            <p class="checkout-error-text">Configure a Public Key do Mercado Pago no painel para habilitar cartao.</p>
+                        @endif
+                        <label class="checkout-field" for="form-checkout__cardholderName">
+                            <span>Nome impresso no cartao</span>
+                            <input id="form-checkout__cardholderName" type="text" autocomplete="cc-name" placeholder="Nome como esta no cartao">
+                        </label>
+                        <div class="checkout-field">
+                            <span>Numero do cartao</span>
+                            <div id="form-checkout__cardNumber" class="mp-secure-field"></div>
+                        </div>
+                        <div class="checkout-field-grid checkout-field-grid--two">
+                            <div class="checkout-field">
+                                <span>Validade</span>
+                                <div id="form-checkout__expirationDate" class="mp-secure-field"></div>
+                            </div>
+                            <div class="checkout-field">
+                                <span>CVV</span>
+                                <div id="form-checkout__securityCode" class="mp-secure-field"></div>
+                            </div>
+                        </div>
+                        <label class="checkout-field" for="form-checkout__installments">
+                            <span>Parcelas</span>
+                            <select id="form-checkout__installments"></select>
+                        </label>
+                        <select id="form-checkout__issuer" hidden></select>
+                        <select id="form-checkout__identificationType" hidden></select>
+                    </div>
+
+                    <div class="checkout-pix-result" id="pix-result" hidden>
+                        <div class="checkout-pix-result__qr" id="pix-qr-wrap"></div>
+                        <div class="checkout-pix-result__body">
+                            <strong>Pix gerado para este pedido</strong>
+                            <p>Escaneie o QR Code ou copie o codigo. A confirmacao acontece automaticamente quando o pagamento for aprovado.</p>
+                            <textarea id="pix-copy-code" readonly></textarea>
+                            <button type="button" id="pix-copy-btn"><i class="fa-regular fa-copy"></i> Copiar codigo Pix</button>
+                            <span id="pix-status-text">Aguardando pagamento...</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if(empty($enabledGateways))
+                    <p class="checkout-error-text">Nenhum metodo de pagamento disponivel no momento.</p>
+                @endif
                 @error('payment_method')<p class="checkout-error-text">{{ $message }}</p>@enderror
 
                 <button type="submit" id="checkout-submit-btn" class="checkout-submit" {{ $hasInitialShippingQuote ? '' : 'disabled' }}>
@@ -281,7 +343,8 @@
                     <div class="checkout-totals">
                         <div><span>Subtotal</span><strong>R$ {{ number_format($subtotal, 2, ',', '.') }}</strong></div>
                         <div><span>Frete</span><strong id="sidebar-shipping">{{ $hasInitialShippingQuote ? ($shipping > 0 ? 'R$ ' . number_format($shipping, 2, ',', '.') : 'Gratis') : 'A calcular' }}</strong></div>
-                        <div id="discount-row" style="{{ ($discount ?? 0) > 0 ? '' : 'display:none' }}"><span>Desconto</span><strong id="sidebar-discount">-R$ {{ number_format($discount ?? 0, 2, ',', '.') }}</strong></div>
+                        <div id="discount-row" style="{{ $couponDiscount > 0 ? '' : 'display:none' }}"><span>Cupom</span><strong id="sidebar-discount">-R$ {{ number_format($couponDiscount, 2, ',', '.') }}</strong></div>
+                        <div id="pix-discount-row" style="{{ $pixDiscount > 0 ? '' : 'display:none' }}"><span>Desconto Pix</span><strong id="sidebar-pix-discount">-R$ {{ number_format($pixDiscount, 2, ',', '.') }}</strong></div>
                         <div class="checkout-totals__grand"><span>Total</span><strong id="sidebar-total">R$ {{ number_format($displayTotal, 2, ',', '.') }}</strong></div>
                     </div>
 
@@ -298,6 +361,12 @@
     </div>
 </section>
 @endsection
+
+@push('head_scripts')
+@if(!empty($mercadoPagoPublicKey))
+<script src="https://sdk.mercadopago.com/js/v2"></script>
+@endif
+@endpush
 
 @push('pixel_events')
 @if(config('store.pixel.facebook'))
@@ -320,6 +389,7 @@ var HAS_SHIPPING_QUOTE = @json((bool) $hasInitialShippingQuote);
 var QUOTE_URL = '{{ route('checkout.quote') }}';
 var CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '';
 var quoteTimer = null;
+var MP_PUBLIC_KEY = @json($mercadoPagoPublicKey ?? '');
 var PIXEL_ENABLED = @json((bool) config('store.pixel.facebook'));
 var CHECKOUT_PIXEL_DATA = {
     value: {{ (float) $total }},
@@ -365,7 +435,10 @@ function selectShipping(service, price, isFree) {
     var fee = isFree ? 0 : Number(price || 0);
 
     if (shippingEl) shippingEl.textContent = isFree ? 'Gratis' : money(fee);
-    if (totalEl) totalEl.textContent = money(Math.max(0, SUBTOTAL - DISCOUNT) + fee);
+    var total = Math.max(0, SUBTOTAL - DISCOUNT) + fee;
+    if (totalEl) totalEl.textContent = money(total);
+    var amountEl = document.getElementById('form-checkout__amount');
+    if (amountEl) amountEl.value = Number(total || 0).toFixed(2);
 
     if (msgEl) {
         msgEl.textContent = service === 'sedex'
@@ -555,6 +628,25 @@ document.querySelectorAll('input[name="payment_method"]').forEach(function (radi
     });
 });
 
+function selectedPaymentType() {
+    return document.querySelector('input[name="payment_type"]:checked')?.value || 'pix';
+}
+
+function syncPaymentPanels() {
+    var type = selectedPaymentType();
+    document.querySelectorAll('input[name="payment_type"]').forEach(function (item) {
+        item.closest('label')?.classList.toggle('is-selected', item.checked);
+    });
+
+    var cardPanel = document.getElementById('card-payment-panel');
+    if (cardPanel) cardPanel.hidden = type !== 'card';
+}
+
+document.querySelectorAll('input[name="payment_type"]').forEach(function (radio) {
+    radio.addEventListener('change', syncPaymentPanels);
+});
+syncPaymentPanels();
+
 setShippingReady(HAS_SHIPPING_QUOTE);
 var initialRate = HAS_SHIPPING_QUOTE ? (RATES[selectedShippingService()] || RATES.pac) : null;
 if (initialRate) selectShipping(selectedShippingService(), Number(initialRate.price), !!initialRate.is_free);
@@ -667,17 +759,60 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
     var PROCESS_URL = '{{ route('checkout.process') }}';
     var checkoutForm = document.getElementById('checkout-form');
     var submitBtn = document.getElementById('checkout-submit-btn');
+    var cardForm = null;
+    var isSubmitting = false;
 
     if (!checkoutForm) return;
 
-    checkoutForm.addEventListener('submit', function (event) {
-        var selected = document.querySelector('input[name="payment_method"]:checked');
-        if (!selected || selected.value !== 'mercadopago') return;
-
-        event.preventDefault();
-        trackAddPaymentInfo(selected.value);
+    function setSubmitLoading(isLoading) {
+        isSubmitting = isLoading;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+        submitBtn.innerHTML = isLoading
+            ? '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'
+            : '<i class="fa-solid fa-lock"></i> Confirmar pedido';
+        if (!isLoading && HAS_SHIPPING_QUOTE) submitBtn.disabled = false;
+    }
+
+    function showPixPayment(data) {
+        var panel = document.getElementById('pix-result');
+        var qrWrap = document.getElementById('pix-qr-wrap');
+        var codeEl = document.getElementById('pix-copy-code');
+        var statusEl = document.getElementById('pix-status-text');
+
+        if (!panel) return;
+        panel.hidden = false;
+        if (codeEl) codeEl.value = data.qr_code || '';
+        if (statusEl) statusEl.textContent = 'Aguardando pagamento...';
+        if (qrWrap) {
+            qrWrap.innerHTML = data.qr_code_base64
+                ? '<img src="data:image/png;base64,' + data.qr_code_base64 + '" alt="QR Code Pix">'
+                : '<i class="fa-brands fa-pix"></i>';
+        }
+
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        if (!data.status_url) return;
+        var attempts = 0;
+        var timer = setInterval(function () {
+            attempts += 1;
+            fetch(data.status_url, { headers: { 'Accept': 'application/json' } })
+                .then(parseJsonResponse)
+                .then(function (statusData) {
+                    if (statusData.paid && statusData.success_url) {
+                        clearInterval(timer);
+                        if (statusEl) statusEl.textContent = 'Pagamento aprovado. Redirecionando...';
+                        window.location.href = statusData.success_url;
+                    }
+                })
+                .catch(function () {});
+
+            if (attempts >= 60) clearInterval(timer);
+        }, 5000);
+    }
+
+    function submitCheckout() {
+        trackAddPaymentInfo(selectedPaymentType());
+        setSubmitLoading(true);
 
         fetch(PROCESS_URL, {
             method: 'POST',
@@ -704,17 +839,80 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
                 });
             })
             .then(function (data) {
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
+                if (data.success_url) {
+                    window.location.href = data.success_url;
                     return;
                 }
-                throw new Error('URL de pagamento nao fornecida.');
+
+                if (data.payment_type === 'pix') {
+                    showPixPayment(data);
+                    setSubmitLoading(false);
+                    return;
+                }
+
+                throw new Error(data.message || 'Pagamento em analise. Aguarde a confirmacao.');
             })
             .catch(function (error) {
                 alert(error.message || 'Erro ao processar pagamento.');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Confirmar pedido';
+                setSubmitLoading(false);
             });
+    }
+
+    if (MP_PUBLIC_KEY && window.MercadoPago) {
+        var mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
+        cardForm = mp.cardForm({
+            amount: document.getElementById('form-checkout__amount')?.value || '0.00',
+            iframe: true,
+            form: {
+                id: 'checkout-form',
+                cardholderName: { id: 'form-checkout__cardholderName', placeholder: 'Nome como esta no cartao' },
+                cardholderEmail: { id: 'customer_email' },
+                cardNumber: { id: 'form-checkout__cardNumber', placeholder: '0000 0000 0000 0000' },
+                expirationDate: { id: 'form-checkout__expirationDate', placeholder: 'MM/AA' },
+                securityCode: { id: 'form-checkout__securityCode', placeholder: '000' },
+                installments: { id: 'form-checkout__installments', placeholder: 'Parcelas' },
+                issuer: { id: 'form-checkout__issuer', placeholder: 'Banco emissor' },
+                identificationType: { id: 'form-checkout__identificationType', placeholder: 'Tipo de documento' },
+                identificationNumber: { id: 'customer_document', placeholder: 'Documento' },
+            },
+            callbacks: {
+                onFormMounted: function (error) {
+                    if (error) console.warn('Mercado Pago card form error', error);
+                },
+                onSubmit: function (event) {
+                    event.preventDefault();
+                    if (isSubmitting) return;
+
+                    if (selectedPaymentType() !== 'card') {
+                        submitCheckout();
+                        return;
+                    }
+
+                    var formData = cardForm.getCardFormData();
+                    document.getElementById('mp_token').value = formData.token || '';
+                    document.getElementById('mp_payment_method_id').value = formData.paymentMethodId || '';
+                    document.getElementById('mp_issuer_id').value = formData.issuerId || '';
+                    document.getElementById('mp_installments').value = formData.installments || '1';
+                    submitCheckout();
+                },
+            },
+        });
+    } else {
+        checkoutForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            if (selectedPaymentType() === 'card') {
+                alert('Cartao indisponivel. Configure a Public Key do Mercado Pago ou escolha Pix.');
+                return;
+            }
+            submitCheckout();
+        });
+    }
+
+    document.getElementById('pix-copy-btn')?.addEventListener('click', function () {
+        var code = document.getElementById('pix-copy-code')?.value || '';
+        if (!code) return;
+        navigator.clipboard?.writeText(code);
+        this.innerHTML = '<i class="fa-solid fa-check"></i> Codigo copiado';
     });
 })();
 </script>

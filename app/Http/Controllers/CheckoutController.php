@@ -54,6 +54,7 @@ class CheckoutController extends Controller
                 'total'         => max(0, $subtotal - $discount) + $shipping,
                 'cartCount'     => (int) collect($cart)->sum('quantity'),
                 'enabledGateways' => AdminPaymentController::enabledGateways(),
+                'mercadoPagoPublicKey' => (string) config('services.mercadopago.public_key'),
             ])
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
@@ -72,6 +73,7 @@ class CheckoutController extends Controller
             'customer_email'    => ['nullable', 'email', 'max:120'],
             'customer_phone'    => ['nullable', 'string', 'max:30'],
             'coupon_code'       => ['nullable', 'string', 'max:40'],
+            'payment_type'      => ['nullable', 'string', 'in:pix,card'],
         ]);
 
         $cart = $this->normalizeCart();
@@ -87,6 +89,8 @@ class CheckoutController extends Controller
         [, $subtotal, $totalWeightGrams] = $this->buildCartSnapshot($cart, $products);
 
         $discount = $this->couponDiscount((string) ($data['coupon_code'] ?? ''), $subtotal);
+        $paymentDiscount = $this->paymentDiscount((string) ($data['payment_type'] ?? 'pix'), $subtotal, $discount);
+        $totalDiscount = $discount + $paymentDiscount;
 
         $quote = $this->shippingService()->getQuote(
             $totalWeightGrams,
@@ -99,11 +103,14 @@ class CheckoutController extends Controller
             'source'          => $quote['source'],
             'shipping'        => $quote['shipping'],
             'shipping_label'  => $quote['shipping'] > 0 ? 'R$ ' . number_format($quote['shipping'], 2, ',', '.') : 'Gratis',
-            'discount'        => $discount,
-            'discount_label'  => $discount > 0 ? '-R$ ' . number_format($discount, 2, ',', '.') : 'R$ 0,00',
+            'discount'        => $totalDiscount,
+            'discount_label'  => $totalDiscount > 0 ? '-R$ ' . number_format($totalDiscount, 2, ',', '.') : 'R$ 0,00',
+            'coupon_discount' => $discount,
+            'payment_discount' => $paymentDiscount,
+            'payment_discount_label' => $paymentDiscount > 0 ? '-R$ ' . number_format($paymentDiscount, 2, ',', '.') : 'R$ 0,00',
             'coupon_valid'    => $discount > 0,
-            'total'           => max(0, $subtotal - $discount) + $quote['shipping'],
-            'total_label'     => 'R$ ' . number_format(max(0, $subtotal - $discount) + $quote['shipping'], 2, ',', '.'),
+            'total'           => max(0, $subtotal - $totalDiscount) + $quote['shipping'],
+            'total_label'     => 'R$ ' . number_format(max(0, $subtotal - $totalDiscount) + $quote['shipping'], 2, ',', '.'),
             'rates'           => $quote['rates'],
             'has_api'         => $quote['has_api'],
         ]);
@@ -192,6 +199,11 @@ class CheckoutController extends Controller
             'shipping_postcode'=> ['required', 'string', 'max:20'],
             'shipping_method'  => ['required', 'string', 'in:pac,sedex'],
             'payment_method'   => ['required', 'string', 'in:' . implode(',', AdminPaymentController::enabledGateways())],
+            'payment_type'     => ['required_if:payment_method,mercadopago', 'nullable', 'string', 'in:pix,card'],
+            'mp_token'         => ['required_if:payment_type,card', 'nullable', 'string', 'max:200'],
+            'mp_payment_method_id' => ['required_if:payment_type,card', 'nullable', 'string', 'max:60'],
+            'mp_issuer_id'     => ['nullable', 'string', 'max:60'],
+            'mp_installments'  => ['nullable', 'integer', 'min:1', 'max:2'],
             'coupon_code'      => ['nullable', 'string', 'max:40'],
             'newsletter_opt_in' => ['nullable', 'boolean'],
             'save_info' => ['nullable', 'boolean'],
@@ -273,7 +285,9 @@ class CheckoutController extends Controller
                 }
 
                 $shippingFee = $shippingService->getPrice($selectedService, $totalWeightGrams, $subtotal, $destination);
-                $discount = $this->couponDiscount((string) ($data['coupon_code'] ?? ''), $subtotal);
+                $couponDiscount = $this->couponDiscount((string) ($data['coupon_code'] ?? ''), $subtotal);
+                $paymentDiscount = $this->paymentDiscount((string) ($data['payment_type'] ?? 'pix'), $subtotal, $couponDiscount);
+                $discount = $couponDiscount + $paymentDiscount;
 
                 $order = Order::create([
                     'number'           => 'OB-' . now()->format('YmdHis') . '-' . random_int(100, 999),
@@ -338,7 +352,7 @@ class CheckoutController extends Controller
                 ->with('error', 'Nao foi possivel processar o pedido agora. Tente novamente.');
         }
 
-        return $this->startPayment($order, $data['payment_method'], $wantsJson);
+        return $this->startPayment($order, $data, $wantsJson);
     }
     public function paymentCancel(Order $order): RedirectResponse
     {
@@ -409,6 +423,44 @@ class CheckoutController extends Controller
         }
 
         return response()->json(['received' => true]);
+    }
+
+    public function paymentStatus(Order $order): JsonResponse
+    {
+        if ($order->paid) {
+            return response()->json([
+                'paid' => true,
+                'status' => $order->status,
+                'success_url' => route('checkout.success', $order),
+            ]);
+        }
+
+        $reference = trim((string) $order->payment_reference);
+        if ($reference !== '') {
+            try {
+                $payment = $this->mercadopagoService()->getPaymentInfo($reference);
+                if (($payment['status'] ?? '') === 'approved') {
+                    $this->markOrderPaid($order, 'mercadopago', $reference);
+                    session()->forget('cart');
+
+                    return response()->json([
+                        'paid' => true,
+                        'status' => 'paid',
+                        'success_url' => route('checkout.success', $order),
+                    ]);
+                }
+            } catch (RuntimeException $exception) {
+                Log::warning('Falha ao consultar status do pagamento', [
+                    'order_id' => $order->id,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'paid' => false,
+            'status' => $order->status,
+        ]);
     }
 
     public function success(Order $order): View
@@ -533,27 +585,87 @@ class CheckoutController extends Controller
         return new MercadoPagoPaymentService();
     }
 
-    private function startPayment(Order $order, string $paymentMethod, bool $expectsJson = false): JsonResponse|RedirectResponse
+    private function startPayment(Order $order, array $data, bool $expectsJson = false): JsonResponse|RedirectResponse
     {
+        $paymentMethod = (string) ($data['payment_method'] ?? '');
+
         try {
             if ($paymentMethod !== 'mercadopago') {
                 throw new RuntimeException('Método de pagamento inválido.');
             }
 
-            $preference = $this->mercadopagoService()->createPaymentPreference($order);
+            $paymentType = (string) ($data['payment_type'] ?? 'pix');
+            $payer = [
+                'document' => $data['customer_document'] ?? $order->customer_document,
+            ];
 
-            $order->update([
-                'status'            => 'awaiting_payment',
-                'payment_reference' => (string) ($preference['id'] ?? ''),
-            ]);
+            if ($paymentType === 'pix') {
+                $payment = $this->mercadopagoService()->createPixPayment($order, $payer);
+                $transactionData = $payment['point_of_interaction']['transaction_data'] ?? [];
 
-            if ($expectsJson) {
-                return response()->json([
-                    'redirect_url' => (string) $preference['init_point'],
+                $order->update([
+                    'status' => 'awaiting_payment',
+                    'payment_reference' => (string) ($payment['id'] ?? ''),
                 ]);
+
+                if ($expectsJson) {
+                    return response()->json([
+                        'payment_type' => 'pix',
+                        'status' => $payment['status'] ?? 'pending',
+                        'order_id' => $order->id,
+                        'payment_id' => (string) ($payment['id'] ?? ''),
+                        'qr_code' => $transactionData['qr_code'] ?? '',
+                        'qr_code_base64' => $transactionData['qr_code_base64'] ?? '',
+                        'ticket_url' => $transactionData['ticket_url'] ?? '',
+                        'status_url' => route('checkout.payment.status', $order),
+                    ]);
+                }
+
+                return redirect()->route('checkout.index')->with('success', 'Pedido criado. Use o Pix exibido na tela para pagar.');
             }
 
-            return redirect()->away((string) $preference['init_point']);
+            $payment = $this->mercadopagoService()->createCardPayment($order, [
+                'token' => $data['mp_token'] ?? '',
+                'payment_method_id' => $data['mp_payment_method_id'] ?? '',
+                'issuer_id' => $data['mp_issuer_id'] ?? '',
+                'installments' => $data['mp_installments'] ?? 1,
+            ], $payer);
+
+            $paymentId = (string) ($payment['id'] ?? '');
+            $status = (string) ($payment['status'] ?? '');
+
+            $order->update([
+                'status' => $status === 'approved' ? 'paid' : ($status === 'rejected' ? 'payment_cancelled' : 'awaiting_payment'),
+                'payment_reference' => $paymentId,
+            ]);
+
+            if ($status === 'approved') {
+                $this->markOrderPaid($order->fresh(), 'mercadopago', $paymentId);
+                session()->forget('cart');
+            }
+
+            if ($expectsJson) {
+                if ($status === 'approved') {
+                    return response()->json([
+                        'payment_type' => 'card',
+                        'status' => 'approved',
+                        'success_url' => route('checkout.success', $order),
+                    ]);
+                }
+
+                return response()->json([
+                    'payment_type' => 'card',
+                    'status' => $status,
+                    'status_detail' => $payment['status_detail'] ?? '',
+                    'message' => $this->cardStatusMessage($status, (string) ($payment['status_detail'] ?? '')),
+                ], $status === 'rejected' ? 422 : 202);
+            }
+
+            if ($status === 'approved') {
+                return redirect()->route('checkout.success', $order);
+            }
+
+            return redirect()->route('checkout.index')->with('error', $this->cardStatusMessage($status, (string) ($payment['status_detail'] ?? '')));
         } catch (Throwable $exception) {
             Log::error('Falha ao iniciar pagamento', [
                 'order_id' => $order->id,
@@ -572,6 +684,24 @@ class CheckoutController extends Controller
 
             return redirect()->route('checkout.index')->with('error', $exception->getMessage());
         }
+    }
+
+    private function cardStatusMessage(string $status, string $detail): string
+    {
+        if ($status === 'in_process' || $status === 'pending') {
+            return 'Pagamento em analise. Assim que for aprovado, atualizaremos o pedido.';
+        }
+
+        $messages = [
+            'cc_rejected_bad_filled_card_number' => 'Confira o numero do cartao e tente novamente.',
+            'cc_rejected_bad_filled_date' => 'Confira a validade do cartao e tente novamente.',
+            'cc_rejected_bad_filled_security_code' => 'Confira o codigo de seguranca e tente novamente.',
+            'cc_rejected_insufficient_amount' => 'Saldo ou limite insuficiente para concluir a compra.',
+            'cc_rejected_high_risk' => 'Pagamento recusado pela analise de seguranca. Tente outro cartao ou Pix.',
+            'cc_rejected_other_reason' => 'Pagamento recusado. Tente outro cartao ou Pix.',
+        ];
+
+        return $messages[$detail] ?? 'Pagamento nao aprovado. Tente novamente ou escolha Pix.';
     }
 
     private function buildCartSnapshot(array $cart, $products): array
@@ -653,6 +783,15 @@ class CheckoutController extends Controller
             : $value;
 
         return round(min($subtotal, $discount), 2);
+    }
+
+    private function paymentDiscount(string $paymentType, float $subtotal, float $couponDiscount = 0): float
+    {
+        if ($paymentType !== 'pix') {
+            return 0.0;
+        }
+
+        return round(max(0, $subtotal - $couponDiscount) * 0.05, 2);
     }
 
     private function normalizeCart(): array

@@ -45,6 +45,16 @@
             </div>
 
             <div>
+                <label class="panel-label" for="mercadopago_public_key">Public Key</label>
+                <input type="password" name="mercadopago_public_key" id="mercadopago_public_key"
+                    class="panel-input font-mono text-xs"
+                    value="{{ old('mercadopago_public_key', $settings['payments.mercadopago.public_key'] ?? '') }}"
+                    placeholder="APP_USR-...">
+                <p class="text-[11px] text-muted mt-1">Necessaria para tokenizar cartao com seguranca no Checkout Transparente.</p>
+                @error('mercadopago_public_key') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
                 <label class="panel-label" for="mercadopago_webhook_secret">Webhook Secret</label>
                 <input type="password" name="mercadopago_webhook_secret" id="mercadopago_webhook_secret"
                     class="panel-input font-mono text-xs"

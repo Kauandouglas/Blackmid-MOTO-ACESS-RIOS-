@@ -54,6 +54,7 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::get('/checkout/payment/mercadopago/success/{order}', [CheckoutController::class, 'mercadopagoSuccess'])->name('checkout.payment.mercadopago.success');
 Route::get('/checkout/payment/mercadopago/pending/{order}', [CheckoutController::class, 'paymentCancel'])->name('checkout.payment.mercadopago.pending');
 Route::get('/checkout/payment/cancel/{order}', [CheckoutController::class, 'paymentCancel'])->name('checkout.payment.cancel');
+Route::get('/checkout/payment/status/{order}', [CheckoutController::class, 'paymentStatus'])->name('checkout.payment.status');
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 Route::post('/webhooks/mercadopago', [CheckoutController::class, 'mercadopagoWebhook'])

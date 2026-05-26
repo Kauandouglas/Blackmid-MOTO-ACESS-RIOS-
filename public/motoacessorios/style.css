@@ -1429,6 +1429,94 @@
 .checkout-error-text {
   color: #fecaca;
 }
+.checkout-payment-switch {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.checkout-payment-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #26313d;
+  border-radius: 8px;
+  background: #0b1016;
+}
+.mp-secure-field {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #2a3542;
+  border-radius: 8px;
+  background: #080d12;
+  color: var(--text);
+  padding: 12px 13px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.mp-secure-field:focus-within {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,214,79,.08);
+}
+.checkout-pix-result {
+  display: grid;
+  grid-template-columns: 172px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid rgba(0,214,79,.35);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0,214,79,.13), rgba(13,18,24,.96));
+}
+.checkout-pix-result__qr {
+  width: 172px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #fff;
+  color: #0a8f46;
+  overflow: hidden;
+}
+.checkout-pix-result__qr img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.checkout-pix-result__qr i {
+  font-size: 54px;
+}
+.checkout-pix-result__body {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+}
+.checkout-pix-result__body strong {
+  color: var(--text);
+  font-size: 16px;
+}
+.checkout-pix-result__body p,
+.checkout-pix-result__body span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.checkout-pix-result__body textarea {
+  width: 100%;
+  min-height: 74px;
+  resize: vertical;
+  border: 1px solid #2a3542;
+  border-radius: 8px;
+  background: #080d12;
+  color: var(--text);
+  padding: 10px;
+  font-size: 12px;
+}
+.checkout-pix-result__body button {
+  min-height: 42px;
+  border: 1px solid rgba(0,214,79,.45);
+  border-radius: 8px;
+  background: rgba(0,214,79,.12);
+  color: var(--green);
+  font-weight: 900;
+  cursor: pointer;
+}
 .checkout-submit {
   width: 100%;
   min-height: 52px;
@@ -2240,8 +2328,16 @@ body.lightbox-open {
     flex-direction: column;
   }
   .checkout-field-grid--two,
+  .checkout-payment-switch,
   .checkout-trust {
     grid-template-columns: 1fr;
+  }
+  .checkout-pix-result {
+    grid-template-columns: 1fr;
+  }
+  .checkout-pix-result__qr {
+    width: min(100%, 220px);
+    justify-self: center;
   }
   .checkout-option {
     grid-template-columns: auto 34px minmax(0, 1fr);

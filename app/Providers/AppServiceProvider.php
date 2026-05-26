@@ -39,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
                 // Mapear chaves de pagamento do admin para config/services
                 $paymentMap = [
                     'payments.mercadopago.access_token' => 'services.mercadopago.access_token',
+                    'payments.mercadopago.public_key' => 'services.mercadopago.public_key',
                     'payments.mercadopago.webhook_secret' => 'services.mercadopago.webhook_secret',
                 ];
 
