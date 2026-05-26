@@ -1562,7 +1562,12 @@
   min-height: 46px;
   background: #080d12 !important;
   color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
   caret-color: var(--green);
+}
+.checkout-payment-card .checkout-field input::placeholder {
+  color: #7d8790 !important;
+  -webkit-text-fill-color: #7d8790 !important;
 }
 .checkout-payment-card .checkout-field input:-webkit-autofill,
 .checkout-payment-card .checkout-field input:-webkit-autofill:hover,

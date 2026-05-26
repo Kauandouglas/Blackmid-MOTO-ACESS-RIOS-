@@ -1004,18 +1004,37 @@ document.getElementById('shipping_postcode')?.addEventListener('input', function
         var mp = new MercadoPago(MP_PUBLIC_KEY, { locale: 'pt-BR' });
         var secureFieldStyle = {
             color: '#f4f7f8',
+            backgroundColor: '#080d12',
             fontSize: '16px',
             fontFamily: 'Barlow, Arial, sans-serif',
             fontWeight: '700',
             placeholderColor: '#7d8790',
         };
+        var secureFieldStyles = {
+            input: secureFieldStyle,
+            ':focus': {
+                color: '#ffffff',
+                placeholderColor: '#6f7a85',
+            },
+            '::placeholder': {
+                color: '#7d8790',
+            },
+        };
         cardForm = mp.cardForm({
             amount: document.getElementById('form-checkout__amount')?.value || '0.00',
             iframe: true,
             style: {
-                cardNumber: secureFieldStyle,
-                expirationDate: secureFieldStyle,
-                securityCode: secureFieldStyle,
+                customVariables: {
+                    formBackgroundColor: '#080d12',
+                    baseColor: '#f4f7f8',
+                    baseColorFirstVariant: '#f4f7f8',
+                    inputBackgroundColor: '#080d12',
+                    inputTextColor: '#f4f7f8',
+                    inputPlaceholderColor: '#7d8790',
+                },
+                cardNumber: secureFieldStyles,
+                expirationDate: secureFieldStyles,
+                securityCode: secureFieldStyles,
             },
             form: {
                 id: 'checkout-form',
