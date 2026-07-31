@@ -14,6 +14,7 @@ class BlingProductServiceTest extends TestCase
     {
         config([
             'bling.base_url' => 'https://api.bling.com.br/Api/v3',
+            'bling.token_url' => 'https://api.bling.com.br/Api/v3/oauth/token',
             'bling.access_token' => 'old-access-token',
             'bling.refresh_token' => 'old-refresh-token',
             'bling.client_id' => 'client-id',
@@ -36,7 +37,7 @@ class BlingProductServiceTest extends TestCase
                         'preco' => 25.5,
                     ],
                 ]], 200),
-            'https://www.bling.com.br/Api/v3/oauth/token' => Http::response([
+            'https://api.bling.com.br/Api/v3/oauth/token' => Http::response([
                 'access_token' => 'new-access-token',
                 'refresh_token' => 'new-refresh-token',
             ], 200),
@@ -64,6 +65,8 @@ class BlingProductServiceTest extends TestCase
         ], $env->values);
 
         Http::assertSentCount(3);
+        Http::assertSent(fn ($request) => $request->url() === 'https://api.bling.com.br/Api/v3/oauth/token'
+            && $request->hasHeader('enable-jwt', '1'));
     }
 
     public function test_it_uses_bling_product_name_filter_when_searching(): void
@@ -99,6 +102,7 @@ class BlingProductServiceTest extends TestCase
             parse_str((string) parse_url($request->url(), PHP_URL_QUERY), $query);
 
             return $request->url() !== ''
+                && $request->hasHeader('enable-jwt', '1')
                 && ($query['nome'] ?? null) === 'capacete'
                 && ! array_key_exists('criterio', $query);
         });

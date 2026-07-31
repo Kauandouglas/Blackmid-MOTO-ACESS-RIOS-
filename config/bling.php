@@ -2,6 +2,7 @@
 
 return [
     'base_url' => env('BLING_BASE_URL', 'https://api.bling.com.br/Api/v3'),
+    'token_url' => env('BLING_TOKEN_URL', 'https://api.bling.com.br/Api/v3/oauth/token'),
     'access_token' => env('BLING_ACCESS_TOKEN'),
     'refresh_token' => env('BLING_REFRESH_TOKEN'),
     'client_id' => env('BLING_CLIENT_ID'),

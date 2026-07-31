@@ -100,9 +100,10 @@ class AdminBlingAuthController extends Controller
     {
         $response = Http::asForm()
             ->acceptJson()
+            ->withHeader('enable-jwt', '1')
             ->withBasicAuth((string) config('bling.client_id'), (string) config('bling.client_secret'))
             ->timeout((int) config('bling.timeout', 20))
-            ->post('https://www.bling.com.br/Api/v3/oauth/token', [
+            ->post((string) config('bling.token_url'), [
                 'grant_type' => 'authorization_code',
                 'code' => $code,
             ]);

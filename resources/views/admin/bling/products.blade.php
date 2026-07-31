@@ -23,8 +23,13 @@
             @endunless
 
             @if($error)
-                <div class="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-                    {{ $error }}
+                <div class="mt-4 flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 sm:flex-row sm:items-center sm:justify-between">
+                    <span>{{ $error }}</span>
+                    @if(str_contains($error, 'Sessao do Bling expirada'))
+                        <a class="panel-btn-primary shrink-0 text-center" href="{{ route('admin.bling.auth') }}">
+                            Reconectar Bling
+                        </a>
+                    @endif
                 </div>
             @endif
         </div>
