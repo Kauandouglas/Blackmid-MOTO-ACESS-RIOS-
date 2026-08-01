@@ -20,6 +20,9 @@
 
     <div class="panel-card panel-card-body">
         <h3 class="panel-section-title mb-4">Status do pedido</h3>
+        <p class="mb-4 text-sm text-slate-700">
+            <strong>Data do pedido:</strong> {{ $order->created_at->timezone('America/Sao_Paulo')->format('d/m/Y') }} às {{ $order->created_at->timezone('America/Sao_Paulo')->format('H:i') }}
+        </p>
         <form method="POST" action="{{ route('admin.orders.update', $order) }}">
             @csrf
             @method('PATCH')

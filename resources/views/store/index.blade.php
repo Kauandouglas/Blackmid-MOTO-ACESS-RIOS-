@@ -3,7 +3,10 @@
 @section('bodyClass', 'page-home')
 @section('content')
 @php
-    $featured = $products->where('highlight_best_sellers', true)->take(10)->values();
+    $featured = $products->where('highlight_weekly_promotion', true)->take(10)->values();
+    if ($featured->isEmpty()) {
+        $featured = $products->where('highlight_best_sellers', true)->take(10)->values();
+    }
     if ($featured->isEmpty()) {
         $featured = $products->where('featured', true)->take(10)->values();
     }
@@ -22,6 +25,11 @@
     $homeCategories = collect($preferredSlugs)
         ->map(fn ($slug) => $categories->firstWhere('slug', $slug))
         ->filter()
+        ->concat(
+            $categories
+                ->whereNull('parent_id')
+                ->reject(fn ($category) => in_array($category->slug, $preferredSlugs, true))
+        )
         ->values();
     if ($homeCategories->isEmpty()) {
         $homeCategories = $categories->take(5);
@@ -66,7 +74,11 @@
                     @foreach($homeCategories as $category)
                         <a href="{{ route('store.category', $category->slug) }}" @class(['cat-item reveal visible', 'active' => $activeCategory === $category->slug])>
                             <div class="cat-item__circle">
-                                <img src="{{ $category->image ?: ($categoryImages[$category->slug] ?? 'https://images.tcdn.com.br/files/490060/themes/203/img/settings/POL.png') }}" alt="{{ $category->name }}">
+                                <img
+                                    src="{{ $category->image ?: ($categoryImages[$category->slug] ?? asset('motoacessorios/placeholder-product.svg')) }}"
+                                    alt="{{ $category->name }}"
+                                    onerror="this.onerror=null;this.src='{{ asset('motoacessorios/placeholder-product.svg') }}'"
+                                >
                             </div>
                             <span>{{ mb_strtoupper($category->name) }}</span>
                         </a>
@@ -84,7 +96,7 @@
 <section class="products" id="produtos">
     <div class="container">
         <div class="section-head">
-            <h2>DESTAQUE DA SEMANA</h2>
+            <h2>PROMOÇÃO DA SEMANA</h2>
             <a href="{{ route('store.search') }}">VER TODOS</a>
         </div>
 

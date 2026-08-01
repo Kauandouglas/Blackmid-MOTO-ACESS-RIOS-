@@ -142,6 +142,7 @@ class AdminProductController extends Controller
             'featured' => ['nullable', 'boolean'],
             'highlight_best_sellers' => ['nullable', 'boolean'],
             'highlight_launches' => ['nullable', 'boolean'],
+            'highlight_weekly_promotion' => ['nullable', 'boolean'],
             'active' => ['nullable', 'boolean'],
         ]);
 
@@ -214,6 +215,7 @@ class AdminProductController extends Controller
         $data['depth_cm'] = $data['depth_cm'] !== null ? (float) $data['depth_cm'] : null;
         $data['highlight_best_sellers'] = $request->boolean('highlight_best_sellers');
         $data['highlight_launches'] = $request->boolean('highlight_launches');
+        $data['highlight_weekly_promotion'] = $request->boolean('highlight_weekly_promotion');
         $data['active'] = $request->boolean('active');
 
         unset($data['images'], $data['remove_existing_images'], $data['cover_choice']);

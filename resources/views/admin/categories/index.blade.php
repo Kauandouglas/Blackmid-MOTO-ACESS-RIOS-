@@ -23,7 +23,16 @@
         <tbody class="panel-table-body">
         @forelse($categories as $category)
             <tr>
-                <td class="panel-td-strong">{{ $category->name }}</td>
+                <td class="panel-td-strong">
+                    <span class="flex items-center gap-3">
+                        @if($category->image)
+                            <img class="h-10 w-10 shrink-0 rounded-full border border-line bg-slate-900 object-cover" src="{{ $category->image }}" alt="">
+                        @else
+                            <span class="h-10 w-10 shrink-0 rounded-full border border-dashed border-slate-300 bg-slate-50"></span>
+                        @endif
+                        <span>{{ $category->name }}</span>
+                    </span>
+                </td>
                 <td class="panel-td hidden sm:table-cell">{{ $category->slug }}</td>
                 <td class="panel-td hidden md:table-cell">
                     {{ $category->parent ? 'Subcategoria de '.$category->parent->name : 'Principal' }}

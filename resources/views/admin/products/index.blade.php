@@ -71,13 +71,16 @@
                 <td class="panel-td hidden sm:table-cell">{{ ($product->track_stock ?? true) ? $product->stock : 'infinito' }}</td>
                 <td class="panel-td hidden xl:table-cell">
                     <div class="flex flex-wrap gap-1">
+                        @if($product->highlight_weekly_promotion ?? false)
+                            <span class="panel-badge-green">Promoção da Semana</span>
+                        @endif
                         @if($product->highlight_best_sellers ?? false)
                             <span class="panel-badge-green">Mais Vendidos</span>
                         @endif
                         @if($product->highlight_launches ?? false)
                             <span class="panel-badge-blue">Lancamentos</span>
                         @endif
-                        @if(!($product->highlight_best_sellers ?? false) && !($product->highlight_launches ?? false))
+                        @if(!($product->highlight_weekly_promotion ?? false) && !($product->highlight_best_sellers ?? false) && !($product->highlight_launches ?? false))
                             <span class="panel-badge-gray">-</span>
                         @endif
                     </div>

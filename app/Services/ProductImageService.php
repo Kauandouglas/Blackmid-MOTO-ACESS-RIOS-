@@ -9,20 +9,20 @@ use Illuminate\Support\Str;
 
 class ProductImageService
 {
-    public function storeOptimizedUpload(UploadedFile $file): string
+    public function storeOptimizedUpload(UploadedFile $file, string $directory = 'products'): string
     {
         $rawContents = file_get_contents($file->getRealPath());
 
         if ($rawContents === false) {
-            $storedPath = $file->store('products', 'public');
+            $storedPath = $file->store($this->normalizedDirectory($directory), 'public');
 
             return $this->publicImageUrl($storedPath);
         }
 
-        return $this->storeOptimizedContents($rawContents);
+        return $this->storeOptimizedContents($rawContents, $directory);
     }
 
-    public function downloadAndStore(?string $url): ?string
+    public function downloadAndStore(?string $url, string $directory = 'products'): ?string
     {
         if (! filled($url) || ! filter_var($url, FILTER_VALIDATE_URL)) {
             return null;
@@ -42,19 +42,19 @@ class ProductImageService
             return null;
         }
 
-        return $this->storeOptimizedContents($response->body());
+        return $this->storeOptimizedContents($response->body(), $directory);
     }
 
-    public function storeOptimizedContents(string $rawContents): string
+    public function storeOptimizedContents(string $rawContents, string $directory = 'products'): string
     {
         if ($rawContents === '' || ! function_exists('imagecreatefromstring')) {
-            return $this->storeRawContents($rawContents, 'jpg');
+            return $this->storeRawContents($rawContents, 'jpg', $directory);
         }
 
         $sourceImage = @imagecreatefromstring($rawContents);
 
         if ($sourceImage === false) {
-            return $this->storeRawContents($rawContents, 'jpg');
+            return $this->storeRawContents($rawContents, 'jpg', $directory);
         }
 
         $sourceWidth = imagesx($sourceImage);
@@ -84,7 +84,7 @@ class ProductImageService
         );
 
         $extension = function_exists('imagewebp') ? 'webp' : 'jpg';
-        $filename = 'products/'.Str::uuid().'.'.$extension;
+        $filename = $this->normalizedDirectory($directory).'/'.Str::uuid().'.'.$extension;
 
         ob_start();
 
@@ -120,9 +120,9 @@ class ProductImageService
         }
     }
 
-    private function storeRawContents(string $rawContents, string $extension): string
+    private function storeRawContents(string $rawContents, string $extension, string $directory): string
     {
-        $filename = 'products/'.Str::uuid().'.'.$extension;
+        $filename = $this->normalizedDirectory($directory).'/'.Str::uuid().'.'.$extension;
         Storage::disk('public')->put($filename, $rawContents);
 
         return $this->publicImageUrl($filename);
@@ -131,5 +131,12 @@ class ProductImageService
     private function publicImageUrl(string $path): string
     {
         return '/storage/'.ltrim($path, '/');
+    }
+
+    private function normalizedDirectory(string $directory): string
+    {
+        $directory = trim($directory, '/');
+
+        return preg_match('/^[a-zA-Z0-9_-]+$/', $directory) ? $directory : 'products';
     }
 }

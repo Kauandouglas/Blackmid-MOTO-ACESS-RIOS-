@@ -10,6 +10,7 @@ use App\Models\ProductVariant;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Services\MercadoPagoPaymentService;
 use App\Services\BrazilShipping;
+use App\Services\CheckoutPricing;
 use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,7 +40,9 @@ class CheckoutController extends Controller
         $quote         = $this->shippingService()->getQuote($totalWeightGrams, $subtotal);
         $shippingRates = $quote['rates'];
         $shipping      = $quote['shipping'];
-        $discount      = 0.0;
+        $couponDiscount = 0.0;
+        $paymentDiscount = $this->pricingService()->paymentDiscount('pix', $subtotal, $couponDiscount);
+        $discount = $couponDiscount + $paymentDiscount;
 
         return response()
             ->view('checkout.index', [
@@ -50,6 +53,9 @@ class CheckoutController extends Controller
                 'shippingSource'=> $quote['source'],
                 'hasShippingApi' => $quote['has_api'],
                 'discount'      => $discount,
+                'couponDiscount' => $couponDiscount,
+                'paymentDiscount' => $paymentDiscount,
+                'pixDiscountPercent' => (float) config('store.pix_discount_percent', 5),
                 'couponCode'    => '',
                 'total'         => max(0, $subtotal - $discount) + $shipping,
                 'cartCount'     => (int) collect($cart)->sum('quantity'),
@@ -821,11 +827,12 @@ class CheckoutController extends Controller
 
     private function paymentDiscount(string $paymentType, float $subtotal, float $couponDiscount = 0): float
     {
-        if ($paymentType !== 'pix') {
-            return 0.0;
-        }
+        return $this->pricingService()->paymentDiscount($paymentType, $subtotal, $couponDiscount);
+    }
 
-        return round(max(0, $subtotal - $couponDiscount) * 0.05, 2);
+    private function pricingService(): CheckoutPricing
+    {
+        return app(CheckoutPricing::class);
     }
 
     private function normalizeCart(): array

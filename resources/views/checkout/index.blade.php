@@ -43,8 +43,9 @@
             $hasInitialShippingQuote = old('shipping_postcode') && old('shipping_method');
             $selectedInitialShipping = old('shipping_method', 'pac');
             $selectedInitialPaymentType = old('payment_type', 'pix');
-            $couponDiscount = (float) ($discount ?? 0);
-            $pixDiscount = $selectedInitialPaymentType === 'pix' ? round(max(0, $subtotal - $couponDiscount) * 0.05, 2) : 0.0;
+            $couponDiscount = (float) ($couponDiscount ?? 0);
+            $pixDiscountPercent = (float) ($pixDiscountPercent ?? config('store.pix_discount_percent', 5));
+            $pixDiscount = $selectedInitialPaymentType === 'pix' ? (float) ($paymentDiscount ?? 0) : 0.0;
             $displayDiscount = $couponDiscount + $pixDiscount;
             $displayTotal = ($hasInitialShippingQuote ? $shipping : 0) + max(0, $subtotal - $displayDiscount);
         @endphp
@@ -391,6 +392,7 @@ if (typeof fbq === 'function') {
 var SUBTOTAL = {{ (float) $subtotal }};
 var COUPON_DISCOUNT = {{ (float) $couponDiscount }};
 var PIX_DISCOUNT = {{ (float) $pixDiscount }};
+var PIX_DISCOUNT_PERCENT = {{ (float) $pixDiscountPercent }};
 var DISCOUNT = COUPON_DISCOUNT + PIX_DISCOUNT;
 var RATES = @json($shippingRates);
 var HAS_SHIPPING_QUOTE = @json((bool) $hasInitialShippingQuote);
@@ -438,7 +440,7 @@ function trackAddPaymentInfo(paymentMethod) {
 
 function paymentDiscountForCurrentType() {
     return selectedPaymentType() === 'pix'
-        ? Math.round(Math.max(0, SUBTOTAL - COUPON_DISCOUNT) * 0.05 * 100) / 100
+        ? Math.round(Math.max(0, SUBTOTAL - COUPON_DISCOUNT) * (PIX_DISCOUNT_PERCENT / 100) * 100) / 100
         : 0;
 }
 

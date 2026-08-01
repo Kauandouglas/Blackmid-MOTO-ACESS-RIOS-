@@ -292,9 +292,16 @@
         <div class="space-y-3">
             <div class="rounded-3xl border border-line bg-slate-50 p-5">
                 <h3 class="text-base font-bold text-ink">Destaque na Home</h3>
-                <p class="mt-1 text-sm text-slate-500">Escolha onde este produto deve aparecer: você pode marcar apenas 1 opção ou as 2.</p>
+                <p class="mt-1 text-sm text-slate-500">Escolha em quais vitrines este produto deve aparecer. É possível marcar mais de uma opção.</p>
 
-                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                    <label class="block cursor-pointer">
+                        <input class="peer sr-only" type="checkbox" name="highlight_weekly_promotion" value="1" {{ old('highlight_weekly_promotion', $product->highlight_weekly_promotion ?? false) ? 'checked' : '' }}>
+                        <span class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-brand hover:bg-blue-50 hover:text-brand peer-checked:border-brand peer-checked:bg-brand peer-checked:text-white peer-checked:shadow-soft">
+                            <span>Promoção da Semana</span>
+                        </span>
+                    </label>
+
                     <label class="block cursor-pointer">
                         <input class="peer sr-only" type="checkbox" name="highlight_best_sellers" value="1" {{ old('highlight_best_sellers', $product->highlight_best_sellers ?? false) ? 'checked' : '' }}>
                         <span class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-brand hover:bg-blue-50 hover:text-brand peer-checked:border-brand peer-checked:bg-brand peer-checked:text-white peer-checked:shadow-soft">

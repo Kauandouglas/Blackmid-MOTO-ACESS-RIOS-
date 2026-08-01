@@ -22,6 +22,7 @@
         <thead class="panel-thead">
         <tr>
             <th class="panel-th">Numero</th>
+            <th class="panel-th hidden lg:table-cell">Data do pedido</th>
             <th class="panel-th hidden md:table-cell">Cliente</th>
             <th class="panel-th">Status</th>
             <th class="panel-th hidden sm:table-cell">Pago</th>
@@ -35,7 +36,9 @@
                 <td class="panel-td-strong">
                     <span class="block">{{ $order->number }}</span>
                     <span class="block text-xs text-muted font-normal md:hidden">{{ $order->customer_name }}</span>
+                    <span class="block text-xs text-muted font-normal lg:hidden">{{ $order->created_at->timezone('America/Sao_Paulo')->format('d/m/Y') }} às {{ $order->created_at->timezone('America/Sao_Paulo')->format('H:i') }}</span>
                 </td>
+                <td class="panel-td hidden lg:table-cell whitespace-nowrap">{{ $order->created_at->timezone('America/Sao_Paulo')->format('d/m/Y') }} às {{ $order->created_at->timezone('America/Sao_Paulo')->format('H:i') }}</td>
                 <td class="panel-td hidden md:table-cell">{{ $order->customer_name }}</td>
                 <td class="panel-td">
                     <span class="panel-badge-gray">{{ $order->status }}</span>
@@ -48,7 +51,7 @@
                 <td class="panel-td text-right"><a class="panel-btn-secondary px-3 py-2 text-xs" href="{{ route('admin.orders.show', $order) }}">Detalhes</a></td>
             </tr>
         @empty
-            <tr><td colspan="6" class="panel-td py-8 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>
+            <tr><td colspan="7" class="panel-td py-8 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>
         @endforelse
         </tbody>
     </table>
