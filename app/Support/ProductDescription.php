@@ -10,10 +10,18 @@ final class ProductDescription
      */
     public static function forDisplay(?string $description): string
     {
-        return (string) preg_replace(
+        $description = (string) preg_replace(
             '/&(?:amp;)*lt;\s*br\s*\/?\s*&(?:amp;)*gt;/i',
             '<br>',
             $description ?? '',
         );
+
+        $description = (string) preg_replace(
+            '/&(?:amp;)*nbsp;|&#0*160;|&#x0*a0;/i',
+            ' ',
+            $description,
+        );
+
+        return str_replace("\u{00A0}", ' ', $description);
     }
 }

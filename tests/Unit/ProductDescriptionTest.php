@@ -26,4 +26,14 @@ class ProductDescriptionTest extends TestCase
             ProductDescription::forDisplay($description),
         );
     }
+
+    public function test_it_converts_non_breaking_spaces_to_wrappable_spaces(): void
+    {
+        $description = "Uma&nbsp;linha&amp;nbsp;longa\u{00A0}demais&#160;para&#xA0;o card";
+
+        $this->assertSame(
+            'Uma linha longa demais para o card',
+            ProductDescription::forDisplay($description),
+        );
+    }
 }

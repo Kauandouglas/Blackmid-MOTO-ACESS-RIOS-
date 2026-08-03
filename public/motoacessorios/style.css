@@ -1947,8 +1947,11 @@
 .product-sidebar {
   position: sticky;
   top: 116px;
+  min-width: 0;
 }
 .product-info-card {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid #24303c;
   border-radius: 10px;
   background:
@@ -1993,7 +1996,16 @@
   line-height: 1.55;
 }
 .product-description {
+  max-width: 100%;
   margin-bottom: 18px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  white-space: normal;
+}
+.product-description * {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal !important;
 }
 .product-stock {
   display: inline-flex;
