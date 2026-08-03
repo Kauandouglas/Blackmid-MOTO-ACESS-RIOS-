@@ -219,7 +219,7 @@
         <div class="footer-bottom">
             <div class="container footer-bottom-wrap">
                 <p>© {{ now()->year }} {{ config('app.name', 'Moto Acessórios') }}. Todos os direitos reservados.</p>
-                <p>JG Trading &amp; Services</p>
+                <p>JG Trading &amp; Services &bull; CNPJ: 68.171.144/0001-44</p>
             </div>
         </div>
     </footer>

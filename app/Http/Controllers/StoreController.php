@@ -66,7 +66,7 @@ class StoreController extends Controller
                     ->orWhereHas('categories', fn ($q) => $q->whereIn('categories.id', $categoryIds));
             })
             ->tap(fn ($query) => $this->applyProductSort($query, $sort))
-            ->paginate(10)
+            ->paginate(12)
             ->withQueryString();
 
         return view('store.category', [

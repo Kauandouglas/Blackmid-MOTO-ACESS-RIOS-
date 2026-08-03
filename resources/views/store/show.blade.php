@@ -54,6 +54,7 @@
         : (int) ($product->stock ?? 0);
     $isInStock = ! ($product->track_stock ?? true) || $selectedVariantStock > 0;
     $installment = ((float) $product->price) / 2;
+    $productDescription = \App\Support\ProductDescription::forDisplay($product->description);
 @endphp
 
 <section class="product-detail-page">
@@ -106,7 +107,7 @@
                     </div>
 
                     <div class="description-html product-description">
-                        {!! $product->description ?: 'Produto selecionado com qualidade, acabamento resistente e uso pensado para motociclistas.' !!}
+                        {!! $productDescription ?: 'Produto selecionado com qualidade, acabamento resistente e uso pensado para motociclistas.' !!}
                     </div>
 
                     <div id="productStockInfo" class="product-stock {{ ($product->track_stock ?? true) && ! $isInStock ? 'hidden' : '' }}">

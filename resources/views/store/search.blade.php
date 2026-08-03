@@ -13,13 +13,7 @@
                 BUSCAR PRODUTOS
             @endif
         </h1>
-        <p>
-            @if($searchQuery === '')
-                Use filtros para encontrar produtos por nome, descricao ou categoria.
-            @else
-                {{ $products->total() }} {{ $products->total() === 1 ? 'produto encontrado' : 'produtos encontrados' }}.
-            @endif
-        </p>
+        <p>{{ $products->total() }} {{ $products->total() === 1 ? 'produto encontrado' : 'produtos encontrados' }}.</p>
     </div>
 </section>
 
@@ -76,12 +70,7 @@
         </aside>
 
         <div>
-            @if($searchQuery === '' && $activeCategory === '' && $minPrice === null && $maxPrice === null && !$inStockOnly)
-                <div class="empty-state">
-                    <h2>O que voce procura hoje?</h2>
-                    <p>Tente por exemplo: capacete, bau, jaqueta, luva ou pneu.</p>
-                </div>
-            @elseif($products->isEmpty())
+            @if($products->isEmpty())
                 <div class="empty-state">
                     <h2>Nenhum resultado encontrado</h2>
                     <p>Ajuste os filtros ou tente outro termo de busca.</p>
