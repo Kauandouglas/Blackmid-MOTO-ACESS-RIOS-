@@ -85,6 +85,7 @@ class StoreController extends Controller
         $minPrice = $request->filled('min_price') ? (float) $request->input('min_price') : null;
         $maxPrice = $request->filled('max_price') ? (float) $request->input('max_price') : null;
         $inStockOnly = $request->boolean('in_stock');
+        $weeklyPromotionOnly = $request->boolean('weekly_promotion');
         $sort = $this->validatedSort($request->string('sort')->toString());
 
         $categories = Category::query()
@@ -101,6 +102,7 @@ class StoreController extends Controller
                     ->orWhereHas('categories', fn ($categoryQuery) => $categoryQuery->where('name', 'like', '%' . $search . '%'));
             }))
             ->when($categorySlug !== '', fn ($query) => $this->applyCategoryFilter($query, $categorySlug))
+            ->when($weeklyPromotionOnly, fn ($query) => $query->where('highlight_weekly_promotion', true))
             ->when($minPrice !== null, fn ($query) => $query->where('price', '>=', $minPrice))
             ->when($maxPrice !== null, fn ($query) => $query->where('price', '<=', $maxPrice))
             ->when($inStockOnly, fn ($query) => $query->where(function ($q) {
@@ -119,6 +121,7 @@ class StoreController extends Controller
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
             'inStockOnly' => $inStockOnly,
+            'weeklyPromotionOnly' => $weeklyPromotionOnly,
             'sort' => $sort,
             'cartCount' => $this->cartCount(),
         ]);

@@ -97,7 +97,7 @@
     <div class="container">
         <div class="section-head">
             <h2>PROMOÇÃO DA SEMANA</h2>
-            <a href="{{ route('store.search') }}">VER TODOS</a>
+            <a href="{{ route('store.search', ['weekly_promotion' => 1]) }}">VER TODOS</a>
         </div>
 
         @if($featured->isEmpty())

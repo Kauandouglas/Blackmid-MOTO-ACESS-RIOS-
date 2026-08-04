@@ -7,7 +7,9 @@
     <div class="container">
         <span class="page-kicker">Resultado da busca</span>
         <h1>
-            @if($searchQuery !== '')
+            @if($weeklyPromotionOnly)
+                PROMOÇÃO DA SEMANA
+            @elseif($searchQuery !== '')
                 "{{ $searchQuery }}"
             @else
                 BUSCAR PRODUTOS
@@ -22,6 +24,10 @@
         <aside class="search-filter">
             <h2>Refinar Busca</h2>
             <form action="{{ route('store.search') }}" method="GET">
+                @if($weeklyPromotionOnly)
+                    <input type="hidden" name="weekly_promotion" value="1">
+                @endif
+
                 <div>
                     <label for="search-q">Termo</label>
                     <input id="search-q" type="text" name="q" value="{{ $searchQuery }}" placeholder="Ex.: capacete">
@@ -64,7 +70,7 @@
 
                 <div class="filter-actions">
                     <button type="submit" class="btn btn-green">Filtrar</button>
-                    <a href="{{ route('store.search') }}" class="btn btn-outline">Limpar</a>
+                    <a href="{{ $weeklyPromotionOnly ? route('store.search', ['weekly_promotion' => 1]) : route('store.search') }}" class="btn btn-outline">Limpar</a>
                 </div>
             </form>
         </aside>
