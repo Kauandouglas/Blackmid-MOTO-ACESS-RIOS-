@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductRedirect;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -159,13 +161,26 @@ class StoreController extends Controller
         return response()->json(['products' => $products]);
     }
 
-    public function show(string $slug): View
+    public function show(string $slug): View|RedirectResponse
     {
         $product = Product::query()
             ->with(['category', 'categories', 'variants'])
             ->where('slug', $slug)
             ->where('active', true)
-            ->firstOrFail();
+            ->first();
+
+        if (! $product) {
+            $redirect = ProductRedirect::query()
+                ->where('old_slug', $slug)
+                ->with('product')
+                ->first();
+
+            if ($redirect?->product?->active) {
+                return redirect()->route('store.show', ['slug' => $redirect->product->slug], 301);
+            }
+
+            abort(404);
+        }
 
         $relatedCategoryIds = $product->categories->pluck('id')
             ->whenEmpty(fn ($collection) => $product->category_id ? collect([$product->category_id]) : collect())
