@@ -30,6 +30,7 @@ class MergeBlingSizeVariantsTest extends TestCase
         $category = Category::query()->where('slug', 'acessorios')->firstOrFail();
 
         $p59 = $this->makeSizedProduct($category->id, 'Capacete HJC I90 May Azul E Laranja 59', 'capacete-hjc-i90-may-azul-e-laranja-59', 10);
+        $p59->update(['description' => 'Capacete HJC I90 May Azul E Laranja Cor: Azul&lt;br&gt;Tamanho: 59']);
         $p60 = $this->makeSizedProduct($category->id, 'Capacete HJC I90 May Azul E Laranja 60', 'capacete-hjc-i90-may-azul-e-laranja-60', 5);
         $p61 = $this->makeSizedProduct($category->id, 'Capacete HJC I90 May Azul E Laranja 61', 'capacete-hjc-i90-may-azul-e-laranja-61', 0);
 
@@ -42,6 +43,8 @@ class MergeBlingSizeVariantsTest extends TestCase
         $this->assertSame(15, $merged->stock);
         $this->assertEqualsCanonicalizing(['59', '60', '61'], $merged->sizes);
         $this->assertCount(3, $merged->variants);
+        $this->assertStringNotContainsString('Tamanho:', (string) $merged->description);
+        $this->assertStringContainsString('Cor: Azul', (string) $merged->description);
 
         foreach ([$p59, $p60, $p61] as $original) {
             $redirect = ProductRedirect::query()->where('old_slug', $original->slug)->first();
@@ -97,6 +100,40 @@ class MergeBlingSizeVariantsTest extends TestCase
 
         $this->get('/product/capacete-hjc-c10-epik-pret-cinz-58')
             ->assertRedirect('/product/capacete-hjc-c10-epik-pret-cinz');
+    }
+
+    public function test_does_not_fabricate_stock_when_a_product_already_lists_sizes_without_variant_rows(): void
+    {
+        // Regression for the "Fabio Quartararo" bug report: a product that
+        // already carries a `sizes` array but has no matching ProductVariant
+        // rows has no real per-size stock breakdown. Auto-merging it used to
+        // dump the product's total stock onto the first size and zero the
+        // rest, which looks like real per-size stock but is fabricated.
+        $category = Category::query()->where('slug', 'acessorios')->firstOrFail();
+
+        $noBreakdown = Product::create([
+            'category_id' => $category->id,
+            'name' => 'Capacete Hjc C10 Fabio Quartararo 2024 Verm Pret Branc',
+            'slug' => 'capacete-hjc-c10-fabio-quartararo-2024-verm-pret-branc',
+            'price' => 1510.54,
+            'stock' => 63,
+            'sizes' => ['59', '56', '58', '61', '63'],
+            'active' => true,
+            'bling_id' => 'bling-fq-base',
+        ]);
+
+        $p63 = $this->makeSizedProduct($category->id, 'Capacete Hjc C10 Fabio Quartararo 2024 Verm Pret Branc 63', 'capacete-hjc-c10-fabio-quartararo-2024-verm-pret-branc-63', 4);
+
+        $this->artisan('bling:merge-size-variants', ['--apply' => true])->assertExitCode(0);
+
+        // Nothing should have been merged or deleted: the group was skipped.
+        $this->assertSame(2, $this->blingProductCount());
+        $this->assertSame(0, ProductRedirect::query()->count());
+        $noBreakdown->refresh();
+        $this->assertCount(0, $noBreakdown->variants);
+        $this->assertSame(63, $noBreakdown->stock);
+        $p63->refresh();
+        $this->assertSame(4, $p63->stock);
     }
 
     public function test_products_without_a_matching_pair_are_left_untouched(): void

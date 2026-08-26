@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Product;
 use App\Models\ProductRedirect;
+use App\Support\ProductDescription;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -73,11 +74,13 @@ class MergeBlingSizeVariants extends Command
 
         $mergedGroups = 0;
         $deletedProducts = 0;
+        $skippedGroups = 0;
 
         foreach ($groups as $groupKey => $rows) {
             $rows = $rows->values();
             $baseName = $rows->sortByDesc(fn (array $row) => $this->completenessScore($row))->first()['baseName'];
             $prices = $rows->pluck('price')->unique();
+            $hasUnreliableStock = $rows->contains(fn (array $row) => ! $row['reliableStock']);
 
             $this->line('');
             $this->line("Grupo: {$baseName} (categoria #{$rows->first()['category_id']})");
@@ -89,6 +92,13 @@ class MergeBlingSizeVariants extends Command
                 $product = $row['product'];
                 $sizesLabel = collect($row['sizeEntries'])->pluck('size')->implode(',') ?: '(sem tamanho)';
                 $this->line("  - #{$product->id} [{$sizesLabel}] estoque={$product->stock} slug={$product->slug}");
+            }
+
+            if ($hasUnreliableStock) {
+                $this->comment('  aviso: este produto ja tem uma lista de tamanhos sem estoque por tamanho cadastrado (sem product_variants). Nao da para saber o estoque real de cada tamanho, entao este grupo NAO sera mesclado automaticamente para evitar gravar numeros inventados. Resincronize do Bling (ou ajuste o estoque por tamanho no admin) antes de rodar de novo.');
+                $skippedGroups++;
+
+                continue;
             }
 
             if (! $apply) {
@@ -109,9 +119,12 @@ class MergeBlingSizeVariants extends Command
 
         $this->line('');
         if ($apply) {
-            $this->info("Concluido: {$mergedGroups} grupo(s) mesclados, {$deletedProducts} produto(s) duplicado(s) removido(s).");
+            $this->info("Concluido: {$mergedGroups} grupo(s) mesclados, {$deletedProducts} produto(s) duplicado(s) removido(s), {$skippedGroups} grupo(s) ignorado(s) por estoque nao confiavel.");
         } else {
             $this->comment('Nenhuma alteracao foi gravada. Rode novamente com --apply para efetivar.');
+            if ($skippedGroups > 0) {
+                $this->comment("{$skippedGroups} grupo(s) nao seriam mesclados mesmo com --apply (estoque por tamanho nao confiavel).");
+            }
         }
 
         return self::SUCCESS;
@@ -161,6 +174,7 @@ class MergeBlingSizeVariants extends Command
         $canonical->stock = $totalStock;
         $canonical->sizes = $sizes;
         $canonical->colors = $colors;
+        $canonical->description = ProductDescription::withoutSizeMention($canonical->description);
         $canonical->gallery = collect(array_merge($canonical->gallery ?? [], $extraGallery))
             ->filter()
             ->unique()
@@ -230,10 +244,12 @@ class MergeBlingSizeVariants extends Command
 
         $normalizedBase = $this->normalize($baseName);
         $groupKey = $normalizedBase.'|'.$product->category_id;
+        $sizeData = $this->sizeEntries($product, $token);
 
         return [
             'groupKey' => $groupKey,
-            'sizeEntries' => $this->sizeEntries($product, $token),
+            'sizeEntries' => $sizeData['entries'],
+            'reliableStock' => $sizeData['reliable'],
             'baseName' => $baseName,
             'category_id' => $product->category_id,
             'price' => (float) $product->price,
@@ -246,47 +262,60 @@ class MergeBlingSizeVariants extends Command
      * whether it came in as a single size-per-SKU import or already carries its
      * own variants/sizes from a Bling "produto com variacoes".
      *
-     * @return array<int, array{size: string, color: string, stock: int}>
+     * When a product only has a denormalized `sizes` list with no matching
+     * ProductVariant rows, there is no way to know the real per-size stock
+     * split. Rather than inventing numbers (e.g. dumping the whole stock on
+     * the first size and zeroing the rest, which silently produces wrong
+     * stock data), this is flagged as unreliable so the caller can skip
+     * auto-merging it instead of writing fabricated figures.
+     *
+     * @return array{entries: array<int, array{size: string, color: string, stock: int}>, reliable: bool}
      */
     private function sizeEntries(Product $product, ?string $token): array
     {
         if ($product->variants->isNotEmpty()) {
-            return $product->variants
-                ->map(fn ($variant) => [
-                    'size' => trim((string) $variant->size) ?: (string) $token,
-                    'color' => trim((string) $variant->color),
-                    'stock' => max(0, (int) $variant->stock),
-                ])
-                ->filter(fn (array $entry) => $entry['size'] !== '')
-                ->values()
-                ->all();
+            return [
+                'reliable' => true,
+                'entries' => $product->variants
+                    ->map(fn ($variant) => [
+                        'size' => trim((string) $variant->size) ?: (string) $token,
+                        'color' => trim((string) $variant->color),
+                        'stock' => max(0, (int) $variant->stock),
+                    ])
+                    ->filter(fn (array $entry) => $entry['size'] !== '')
+                    ->values()
+                    ->all(),
+            ];
         }
 
         if ($token !== null) {
-            return [[
-                'size' => $token,
-                'color' => (string) ($product->colors[0] ?? ''),
-                'stock' => max(0, (int) $product->stock),
-            ]];
+            return [
+                'reliable' => true,
+                'entries' => [[
+                    'size' => $token,
+                    'color' => (string) ($product->colors[0] ?? ''),
+                    'stock' => max(0, (int) $product->stock),
+                ]],
+            ];
         }
 
         $sizes = collect($product->sizes ?? [])->filter(fn ($size) => trim((string) $size) !== '')->values();
 
         if ($sizes->isEmpty()) {
-            return [];
+            return ['reliable' => true, 'entries' => []];
         }
 
-        return $sizes
-            ->map(fn ($size, int $index) => [
-                'size' => trim((string) $size),
-                'color' => (string) ($product->colors[0] ?? ''),
-                // No per-size stock breakdown is available for this legacy shape;
-                // keep the product's total stock on the first size rather than
-                // fabricating numbers, and flag the rest as zero for manual review.
-                'stock' => $index === 0 ? max(0, (int) $product->stock) : 0,
-            ])
-            ->values()
-            ->all();
+        return [
+            'reliable' => $sizes->count() <= 1,
+            'entries' => $sizes
+                ->map(fn ($size) => [
+                    'size' => trim((string) $size),
+                    'color' => (string) ($product->colors[0] ?? ''),
+                    'stock' => max(0, (int) $product->stock),
+                ])
+                ->values()
+                ->all(),
+        ];
     }
 
     private function normalize(string $value): string

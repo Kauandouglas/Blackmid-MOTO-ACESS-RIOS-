@@ -36,4 +36,30 @@ class ProductDescriptionTest extends TestCase
             ProductDescription::forDisplay($description),
         );
     }
+
+    public function test_it_removes_a_stale_tamanho_line_from_a_merged_product_description(): void
+    {
+        $description = 'Capacete Hjc C10 Fabio Quartararo 2024 Verm Pret Branc 56 Cor: Vermelho&lt;br&gt;Tamanho: 56';
+
+        $this->assertSame(
+            'Capacete Hjc C10 Fabio Quartararo 2024 Verm Pret Branc 56 Cor: Vermelho',
+            ProductDescription::withoutSizeMention($description),
+        );
+    }
+
+    public function test_it_removes_a_stale_tamanho_line_rendered_as_real_br_tags(): void
+    {
+        $description = "Cor: Vermelho<br>Tamanho: 56<br>Mais detalhes do produto.";
+
+        $this->assertSame(
+            'Cor: Vermelho<br>Mais detalhes do produto.',
+            ProductDescription::withoutSizeMention($description),
+        );
+    }
+
+    public function test_it_returns_null_when_nothing_is_left_after_stripping(): void
+    {
+        $this->assertNull(ProductDescription::withoutSizeMention('Tamanho: 56'));
+        $this->assertNull(ProductDescription::withoutSizeMention(null));
+    }
 }

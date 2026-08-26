@@ -16,10 +16,24 @@
         $galleryImages = [$fallbackImage];
     }
 
+    $sizeSortOrder = ['PP', 'P', 'M', 'G', 'GG', 'XG', 'XGG', 'EG', 'EGG', 'XXG', 'XL', 'XXL', 'XXXL', '3XL', '4XL', 'UNICO', 'UNISSEX'];
+    $sizeSortKey = function ($size) use ($sizeSortOrder) {
+        $normalized = mb_strtoupper(trim((string) $size));
+
+        if (is_numeric($normalized)) {
+            return sprintf('0|%020.4f', (float) $normalized);
+        }
+
+        $index = array_search($normalized, $sizeSortOrder, true);
+
+        return $index !== false ? sprintf('1|%05d', $index) : '2|'.$normalized;
+    };
+
     $sizeOptions = collect($product->sizes ?? [])
         ->concat(collect($product->variants ?? [])->pluck('size'))
         ->filter(fn ($size) => is_string($size) && trim($size) !== '')
         ->unique(fn ($size) => mb_strtolower(trim((string) $size)))
+        ->sortBy($sizeSortKey)
         ->values()
         ->all();
 
@@ -31,24 +45,23 @@
         ->all();
 
     $variantStockMap = collect($product->variants ?? [])
-        ->mapWithKeys(fn ($variant) => [
-            trim((string) $variant->size).'|'.trim((string) $variant->color) => (int) $variant->stock,
-        ])
+        ->groupBy(fn ($variant) => mb_strtolower(trim((string) $variant->size).'|'.trim((string) $variant->color)))
+        ->map(fn ($variants) => (int) $variants->sum(fn ($variant) => (int) $variant->stock))
         ->all();
 
     $hasVariantStock = ($product->track_stock ?? true) && ! empty($variantStockMap);
-    $firstAvailableVariant = $hasVariantStock
-        ? collect($product->variants ?? [])->first(fn ($variant) => (int) $variant->stock > 0)
+    $availableVariantPairs = collect($product->variants ?? [])
+        ->map(fn ($variant) => ['size' => trim((string) $variant->size), 'color' => trim((string) $variant->color)])
+        ->unique(fn (array $pair) => mb_strtolower($pair['size'].'|'.$pair['color']))
+        ->values();
+    $firstAvailablePair = $hasVariantStock
+        ? $availableVariantPairs->first(fn (array $pair) => ($variantStockMap[mb_strtolower($pair['size'].'|'.$pair['color'])] ?? 0) > 0)
         : null;
 
-    $selectedSize = $firstAvailableVariant
-        ? trim((string) $firstAvailableVariant->size)
-        : ($sizeOptions[0] ?? null);
-    $selectedColor = $firstAvailableVariant
-        ? trim((string) $firstAvailableVariant->color)
-        : ($colorOptions[0] ?? null);
+    $selectedSize = $firstAvailablePair['size'] ?? ($sizeOptions[0] ?? null);
+    $selectedColor = $firstAvailablePair['color'] ?? ($colorOptions[0] ?? null);
 
-    $selectedVariantKey = trim((string) ($selectedSize ?? '')).'|'.trim((string) ($selectedColor ?? ''));
+    $selectedVariantKey = mb_strtolower(trim((string) ($selectedSize ?? '')).'|'.trim((string) ($selectedColor ?? '')));
     $selectedVariantStock = $hasVariantStock
         ? (int) ($variantStockMap[$selectedVariantKey] ?? 0)
         : (int) ($product->stock ?? 0);
@@ -275,7 +288,7 @@ const productPixelData = {
 function currentVariantKey() {
     const size = document.getElementById('selectedSize')?.value || '';
     const color = document.getElementById('selectedColor')?.value || '';
-    return `${String(size).trim()}|${String(color).trim()}`;
+    return `${String(size).trim()}|${String(color).trim()}`.toLowerCase();
 }
 
 function resolveCurrentStock() {
@@ -287,8 +300,8 @@ function resolveCurrentStock() {
 function hasAvailableVariant(size, color) {
     if (!productHasVariantStock) return true;
 
-    const normalizedSize = String(size || '').trim();
-    const normalizedColor = String(color || '').trim();
+    const normalizedSize = String(size || '').trim().toLowerCase();
+    const normalizedColor = String(color || '').trim().toLowerCase();
 
     return Object.entries(productVariantStockMap || {}).some(([key, stock]) => {
         if (Number(stock || 0) <= 0) return false;
