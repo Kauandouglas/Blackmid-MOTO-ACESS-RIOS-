@@ -40,6 +40,34 @@ class CleanMultiSizeDescriptionsTest extends TestCase
         $this->assertStringContainsString('Cor: Vermelho', (string) $product->description);
     }
 
+    public function test_it_strips_the_leading_title_and_size_repeated_at_the_top_of_the_description(): void
+    {
+        // Matches the exact shape seen in production: the description opens
+        // with "Name + old size", then blank lines, then "Cor: X<br>Tamanho: Y".
+        $category = Category::query()->where('slug', 'acessorios')->firstOrFail();
+
+        $product = Product::create([
+            'category_id' => $category->id,
+            'name' => 'Capacete Hjc I91 Bina Branc Verm Azu',
+            'slug' => 'capacete-hjc-i91-bina-branc-verm-azu',
+            'price' => 2526.57,
+            'stock' => 218,
+            'description' => "Capacete Hjc I91 Bina Branc Verm Azu 56\n\n\nCor: Branco<br>Tamanho: 56",
+            'active' => true,
+            'bling_id' => 'bling-i91-bina',
+        ]);
+        $product->variants()->createMany([
+            ['size' => '56', 'color' => '', 'stock' => 36],
+            ['size' => '58', 'color' => '', 'stock' => 47],
+            ['size' => '59', 'color' => '', 'stock' => 60],
+        ]);
+
+        $this->artisan('bling:clean-multi-size-descriptions', ['--apply' => true])->assertExitCode(0);
+
+        $product->refresh();
+        $this->assertSame('Cor: Branco', $product->description);
+    }
+
     public function test_dry_run_does_not_change_the_description(): void
     {
         $category = Category::query()->where('slug', 'acessorios')->firstOrFail();

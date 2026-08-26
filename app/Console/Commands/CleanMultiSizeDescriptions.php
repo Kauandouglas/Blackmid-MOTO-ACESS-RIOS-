@@ -12,7 +12,7 @@ class CleanMultiSizeDescriptions extends Command
     protected $signature = 'bling:clean-multi-size-descriptions
         {--apply : Persist the cleanup. Without this flag the command only prints a dry-run report.}';
 
-    protected $description = 'Strip stale "Tamanho: NN" lines left over from single-size Bling descriptions on products that now cover more than one size.';
+    protected $description = 'Strip stale "Tamanho: NN" lines and repeated single-size titles left over from Bling descriptions on products that now cover more than one size.';
 
     public function handle(): int
     {
@@ -27,7 +27,7 @@ class CleanMultiSizeDescriptions extends Command
         $changed = 0;
 
         foreach ($products as $product) {
-            $cleaned = ProductDescription::withoutSizeMention($product->description);
+            $cleaned = ProductDescription::forMultiSizeProduct($product->description, $product->name);
 
             if ($cleaned === $product->description) {
                 continue;

@@ -174,7 +174,7 @@ class MergeBlingSizeVariants extends Command
         $canonical->stock = $totalStock;
         $canonical->sizes = $sizes;
         $canonical->colors = $colors;
-        $canonical->description = ProductDescription::withoutSizeMention($canonical->description);
+        $canonical->description = ProductDescription::forMultiSizeProduct($canonical->description, $baseName);
         $canonical->gallery = collect(array_merge($canonical->gallery ?? [], $extraGallery))
             ->filter()
             ->unique()
@@ -229,11 +229,16 @@ class MergeBlingSizeVariants extends Command
             self::LETTER_TOKENS
         ));
 
+        // Some Bling listings write plus sizes as two words, e.g. "XXL 2XL",
+        // "XXXL 3XL", "XXXXL 4XL" (the second word is just the numeric alias
+        // of the first) — match that whole pair as a single size token.
+        $compoundXlPattern = 'X{2,6}L\s+\dXL';
+
         $token = null;
 
-        if (preg_match('/^(.*\S)\s+(\d{2}|'.$tokenPattern.')$/iu', trim($product->name), $matches)) {
+        if (preg_match('/^(.*\S)\s+('.$compoundXlPattern.'|\d{2}|'.$tokenPattern.')$/iu', trim($product->name), $matches)) {
             $baseName = trim($matches[1]);
-            $token = mb_strtoupper($matches[2]);
+            $token = mb_strtoupper(preg_replace('/\s+/', ' ', trim($matches[2])));
         } else {
             $baseName = trim($product->name);
         }

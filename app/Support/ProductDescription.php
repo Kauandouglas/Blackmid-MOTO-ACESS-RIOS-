@@ -44,4 +44,38 @@ final class ProductDescription
 
         return $cleaned !== '' ? $cleaned : null;
     }
+
+    /**
+     * Bling descriptions for single-size SKUs often open with the product's
+     * full original name (including its size), e.g. "Capacete X 56<br>Cor: ...".
+     * Once merged into a multi-size product that leading line just repeats the
+     * title (now stale, since it still names one old size), so drop it.
+     */
+    public static function withoutLeadingTitleRepeat(?string $description, string $productName): ?string
+    {
+        $description = (string) ($description ?? '');
+        $productName = trim($productName);
+
+        if ($description === '' || $productName === '') {
+            return $description !== '' ? $description : null;
+        }
+
+        $breakPattern = '(?:&(?:amp;)*lt;\s*br\s*\/?\s*&(?:amp;)*gt;|<br\s*\/?>|\r\n|\r|\n)';
+        $pattern = '/^\s*'.preg_quote($productName, '/').'(?:\s+\S+)?\s*(?:'.$breakPattern.')+\s*/iu';
+
+        $cleaned = trim((string) preg_replace($pattern, '', $description, 1));
+
+        return $cleaned !== '' ? $cleaned : null;
+    }
+
+    /**
+     * Runs the full cleanup used once a product covers more than one size:
+     * drops both the stale leading title+size line and the "Tamanho: NN" line.
+     */
+    public static function forMultiSizeProduct(?string $description, string $productName): ?string
+    {
+        $description = self::withoutLeadingTitleRepeat($description, $productName);
+
+        return self::withoutSizeMention($description);
+    }
 }

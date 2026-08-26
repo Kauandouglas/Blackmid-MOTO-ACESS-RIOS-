@@ -136,6 +136,34 @@ class MergeBlingSizeVariantsTest extends TestCase
         $this->assertSame(4, $p63->stock);
     }
 
+    public function test_merges_two_word_plus_size_tokens_like_xxl_2xl(): void
+    {
+        // "Calca Texx Falcon V2 Fem Ld Pret Xxl 2xl" style naming: the plus
+        // size is written as two words (XXL and its numeric alias 2XL), which
+        // a single-trailing-word regex would miss entirely.
+        $category = Category::query()->where('slug', 'acessorios')->firstOrFail();
+
+        $p2xl = $this->makeSizedProduct($category->id, 'Calca Texx Falcon V2 Fem Ld Pret Xxl 2xl', 'calca-texx-falcon-v2-fem-ld-pret-xxl-2xl', 10);
+        $p3xl = $this->makeSizedProduct($category->id, 'Calca Texx Falcon V2 Fem Ld Pret Xxxl 3xl', 'calca-texx-falcon-v2-fem-ld-pret-xxxl-3xl', 8);
+        $p4xl = $this->makeSizedProduct($category->id, 'Calca Texx Falcon V2 Fem Ld Pret Xxxxl 4xl', 'calca-texx-falcon-v2-fem-ld-pret-xxxxl-4xl', 6);
+        $p5xl = $this->makeSizedProduct($category->id, 'Calca Texx Falcon V2 Fem Ld Pret Xxxxxl 5xl', 'calca-texx-falcon-v2-fem-ld-pret-xxxxxl-5xl', 4);
+
+        $this->artisan('bling:merge-size-variants', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertSame(1, $this->blingProductCount());
+
+        $merged = Product::query()->whereNotNull('bling_id')->firstOrFail();
+        $this->assertSame('Calca Texx Falcon V2 Fem Ld Pret', $merged->name);
+        $this->assertSame(28, $merged->stock);
+        $this->assertEqualsCanonicalizing(['XXL 2XL', 'XXXL 3XL', 'XXXXL 4XL', 'XXXXXL 5XL'], $merged->sizes);
+        $this->assertCount(4, $merged->variants);
+
+        foreach ([$p2xl, $p3xl, $p4xl, $p5xl] as $original) {
+            $redirect = ProductRedirect::query()->where('old_slug', $original->slug)->first();
+            $this->assertNotNull($redirect, "missing redirect for {$original->slug}");
+        }
+    }
+
     public function test_products_without_a_matching_pair_are_left_untouched(): void
     {
         $category = Category::query()->where('slug', 'acessorios')->firstOrFail();

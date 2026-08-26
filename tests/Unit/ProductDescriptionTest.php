@@ -62,4 +62,34 @@ class ProductDescriptionTest extends TestCase
         $this->assertNull(ProductDescription::withoutSizeMention('Tamanho: 56'));
         $this->assertNull(ProductDescription::withoutSizeMention(null));
     }
+
+    public function test_it_removes_a_leading_title_that_repeats_the_product_name_and_old_size(): void
+    {
+        $description = "Capacete Hjc I91 Bina Branc Verm Azu 56\n\n\nCor: Branco";
+
+        $this->assertSame(
+            'Cor: Branco',
+            ProductDescription::withoutLeadingTitleRepeat($description, 'Capacete Hjc I91 Bina Branc Verm Azu'),
+        );
+    }
+
+    public function test_it_leaves_descriptions_alone_when_they_do_not_repeat_the_title(): void
+    {
+        $description = "LUVAS LIBERTY\nPara seguranca, conforto e estilo.";
+
+        $this->assertSame(
+            $description,
+            ProductDescription::withoutLeadingTitleRepeat($description, 'Luvas Texx Liberty Pret'),
+        );
+    }
+
+    public function test_for_multi_size_product_strips_both_the_leading_title_and_the_tamanho_line(): void
+    {
+        $description = "Capacete Hjc I91 Carst Pret Cinz  58\n\n\nCor: Preto E Cinza<br>Tamanho: 58";
+
+        $this->assertSame(
+            'Cor: Preto E Cinza',
+            ProductDescription::forMultiSizeProduct($description, 'Capacete Hjc I91 Carst Pret Cinz'),
+        );
+    }
 }
