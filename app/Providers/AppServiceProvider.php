@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
 use App\Models\Menu;
 use App\Models\StoreSetting;
 use Illuminate\Support\Facades\Schema;
@@ -59,6 +60,8 @@ class AppServiceProvider extends ServiceProvider
         }
 
         View::composer('layouts.app', function ($view) {
+            $view->with('mainCategories', $this->mainCategoriesForNav());
+
             try {
                 $hasMenus = Schema::hasTable('menus');
                 $hasMenuItems = Schema::hasTable('menu_items');
@@ -102,5 +105,41 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('navigationItems', $navigationItems);
         });
+    }
+
+    /**
+     * Top navigation bar categories, pulled from the categories table so
+     * renaming/deactivating a category (or adding a new top-level one) is
+     * reflected without touching this list. The original five are kept in
+     * their historical order; any additional active top-level category is
+     * appended after them, ordered by id.
+     */
+    private function mainCategoriesForNav()
+    {
+        $primaryOrder = ['capacetes', 'pecas', 'eletrica', 'vestuario', 'acessorios'];
+
+        try {
+            if (! Schema::hasTable('categories')) {
+                return collect();
+            }
+
+            return Category::query()
+                ->whereNull('parent_id')
+                ->where('active', true)
+                ->get(['id', 'name', 'slug'])
+                ->sortBy(function (Category $category) use ($primaryOrder) {
+                    $index = array_search($category->slug, $primaryOrder, true);
+
+                    return $index !== false ? $index : count($primaryOrder) + $category->id;
+                })
+                ->map(fn (Category $category) => [
+                    'title' => $category->name,
+                    'slug' => $category->slug,
+                    'key' => $category->slug,
+                ])
+                ->values();
+        } catch (\Throwable) {
+            return collect();
+        }
     }
 }

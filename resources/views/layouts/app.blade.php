@@ -23,13 +23,7 @@
         $activeCategorySlug = request()->routeIs('store.category')
             ? (string) request()->route('slug')
             : (string) request('category', '');
-        $mainCategories = collect([
-            ['title' => 'Capacetes', 'slug' => 'capacetes', 'key' => 'capacetes'],
-            ['title' => 'Peças', 'slug' => 'pecas', 'key' => 'pecas'],
-            ['title' => 'Elétrica', 'slug' => 'eletrica', 'key' => 'eletrica'],
-            ['title' => 'Vestuário', 'slug' => 'vestuario', 'key' => 'vestuario'],
-            ['title' => 'Acessórios', 'slug' => 'acessorios', 'key' => 'acessorios'],
-        ]);
+        $mainCategories = $mainCategories ?? collect();
     @endphp
     <link rel="stylesheet" href="{{ asset('motoacessorios/style.css') }}?v={{ $storeStyleVersion }}">
     @if($fbPixelConfig)
