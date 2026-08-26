@@ -55,6 +55,50 @@ class MergeBlingSizeVariantsTest extends TestCase
         $this->get("/product/{$merged->slug}")->assertOk();
     }
 
+    public function test_merges_a_base_product_that_already_has_sizes_with_a_separate_size_sku(): void
+    {
+        // Mirrors the real Bling data shape: "Capacete Hjc C10 Epik Pret Cinz" was
+        // imported as a variacoes product covering sizes 55 and 56, while size 58
+        // exists as its own standalone Bling SKU with a slightly different price.
+        $category = Category::query()->where('slug', 'acessorios')->firstOrFail();
+
+        $base = Product::create([
+            'category_id' => $category->id,
+            'name' => 'Capacete Hjc C10 Epik Pret Cinz',
+            'slug' => 'capacete-hjc-c10-epik-pret-cinz',
+            'price' => 1006.10,
+            'stock' => 11,
+            'sizes' => ['55', '56'],
+            'active' => true,
+            'bling_id' => 'bling-base',
+        ]);
+        $base->variants()->createMany([
+            ['size' => '55', 'color' => '', 'stock' => 6],
+            ['size' => '56', 'color' => '', 'stock' => 5],
+        ]);
+
+        $p58 = $this->makeSizedProduct($category->id, 'Capacete Hjc C10 Epik Pret Cinz 58', 'capacete-hjc-c10-epik-pret-cinz-58', 5);
+        $p58->update(['price' => 1006.08]);
+
+        $this->artisan('bling:merge-size-variants', ['--apply' => true])->assertExitCode(0);
+
+        $this->assertSame(1, $this->blingProductCount());
+
+        $merged = Product::query()->whereNotNull('bling_id')->firstOrFail();
+        $this->assertSame('Capacete Hjc C10 Epik Pret Cinz', $merged->name);
+        $this->assertSame('capacete-hjc-c10-epik-pret-cinz', $merged->slug);
+        $this->assertSame(16, $merged->stock);
+        $this->assertEqualsCanonicalizing(['55', '56', '58'], $merged->sizes);
+        $this->assertCount(3, $merged->variants);
+
+        $redirect = ProductRedirect::query()->where('old_slug', 'capacete-hjc-c10-epik-pret-cinz-58')->first();
+        $this->assertNotNull($redirect);
+        $this->assertSame($merged->id, $redirect->product_id);
+
+        $this->get('/product/capacete-hjc-c10-epik-pret-cinz-58')
+            ->assertRedirect('/product/capacete-hjc-c10-epik-pret-cinz');
+    }
+
     public function test_products_without_a_matching_pair_are_left_untouched(): void
     {
         $category = Category::query()->where('slug', 'acessorios')->firstOrFail();

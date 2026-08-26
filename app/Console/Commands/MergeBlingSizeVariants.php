@@ -33,6 +33,7 @@ class MergeBlingSizeVariants extends Command
 
         $candidates = Product::query()
             ->whereNotNull('bling_id')
+            ->with('variants')
             ->orderBy('id')
             ->get();
 
@@ -40,7 +41,19 @@ class MergeBlingSizeVariants extends Command
             ->map(fn (Product $product) => $this->describe($product))
             ->filter(fn (?array $row) => $row !== null)
             ->groupBy('groupKey')
-            ->filter(fn (Collection $rows) => $rows->count() > 1 && $rows->pluck('size')->unique()->count() > 1);
+            ->filter(function (Collection $rows) {
+                if ($rows->count() < 2) {
+                    return false;
+                }
+
+                $distinctSizes = $rows
+                    ->flatMap(fn (array $row) => collect($row['sizeEntries'])->pluck('size'))
+                    ->map(fn (string $size) => mb_strtolower(trim($size)))
+                    ->filter(fn (string $size) => $size !== '')
+                    ->unique();
+
+                return $distinctSizes->count() > 1;
+            });
 
         if ($limit > 0) {
             $groups = $groups->take($limit);
@@ -62,15 +75,20 @@ class MergeBlingSizeVariants extends Command
         $deletedProducts = 0;
 
         foreach ($groups as $groupKey => $rows) {
-            $rows = $rows->sortBy('size')->values();
-            $baseName = $rows->first()['baseName'];
+            $rows = $rows->values();
+            $baseName = $rows->sortByDesc(fn (array $row) => $this->completenessScore($row))->first()['baseName'];
+            $prices = $rows->pluck('price')->unique();
 
             $this->line('');
-            $this->line("Grupo: {$baseName} (categoria #{$rows->first()['category_id']}, preco {$rows->first()['price']})");
+            $this->line("Grupo: {$baseName} (categoria #{$rows->first()['category_id']})");
+            if ($prices->count() > 1) {
+                $this->comment('  aviso: precos diferentes entre os produtos ('.$prices->map(fn ($p) => number_format($p, 2, ',', '.'))->implode(' / ').'), sera usado o preco do produto escolhido como principal.');
+            }
             foreach ($rows as $row) {
                 /** @var Product $product */
                 $product = $row['product'];
-                $this->line("  - #{$product->id} [{$row['size']}] estoque={$product->stock} slug={$product->slug}");
+                $sizesLabel = collect($row['sizeEntries'])->pluck('size')->implode(',') ?: '(sem tamanho)';
+                $this->line("  - #{$product->id} [{$sizesLabel}] estoque={$product->stock} slug={$product->slug}");
             }
 
             if (! $apply) {
@@ -100,18 +118,28 @@ class MergeBlingSizeVariants extends Command
     }
 
     /**
-     * @param  Collection<int, array{product: Product, size: string, baseName: string, category_id: int|null, price: string}>  $rows
+     * @param  Collection<int, array{product: Product, sizeEntries: array, baseName: string, category_id: int|null, price: float}>  $rows
      */
     private function mergeGroup(Collection $rows, string $baseName): void
     {
         $originalSlugs = $rows->pluck('product.slug', 'product.id');
 
-        $canonicalRow = $rows->sortByDesc(fn (array $row) => $this->completenessScore($row['product']))->first();
+        $canonicalRow = $rows->sortByDesc(fn (array $row) => $this->completenessScore($row))->first();
         /** @var Product $canonical */
         $canonical = $canonicalRow['product'];
 
-        $totalStock = $rows->sum(fn (array $row) => max(0, (int) $row['product']->stock));
-        $sizes = $rows->pluck('size')->unique()->values()->all();
+        $mergedVariants = $rows
+            ->flatMap(fn (array $row) => $row['sizeEntries'])
+            ->groupBy(fn (array $entry) => mb_strtolower(trim($entry['size'])).'|'.mb_strtolower(trim($entry['color'])))
+            ->map(fn (Collection $entries) => [
+                'size' => trim($entries->first()['size']),
+                'color' => trim($entries->first()['color']),
+                'stock' => $entries->sum(fn (array $entry) => max(0, (int) $entry['stock'])),
+            ])
+            ->values();
+
+        $totalStock = $mergedVariants->sum('stock');
+        $sizes = $mergedVariants->pluck('size')->filter()->unique()->values()->all();
         $colors = $rows->pluck('product.colors')
             ->filter()
             ->flatten()
@@ -129,7 +157,7 @@ class MergeBlingSizeVariants extends Command
             ->all();
 
         $canonical->name = $baseName;
-        $canonical->slug = $this->generateUniqueSlug($baseName, $rows->pluck('product.id')->all());
+        $canonical->slug = $this->generateUniqueSlug($baseName, $rows->pluck('product.id')->all(), $canonical->slug);
         $canonical->stock = $totalStock;
         $canonical->sizes = $sizes;
         $canonical->colors = $colors;
@@ -142,13 +170,7 @@ class MergeBlingSizeVariants extends Command
         $canonical->save();
 
         $canonical->variants()->delete();
-        $canonical->variants()->createMany(
-            $rows->map(fn (array $row) => [
-                'size' => $row['size'],
-                'color' => (string) ($row['product']->colors[0] ?? ''),
-                'stock' => max(0, (int) $row['product']->stock),
-            ])->all()
-        );
+        $canonical->variants()->createMany($mergedVariants->all());
 
         foreach ($rows as $row) {
             /** @var Product $product */
@@ -169,15 +191,22 @@ class MergeBlingSizeVariants extends Command
         }
     }
 
-    private function completenessScore(Product $product): int
+    /**
+     * @param  array{product: Product, sizeEntries: array}  $row
+     */
+    private function completenessScore(array $row): int
     {
-        return (int) filled($product->image)
+        $product = $row['product'];
+
+        return count($row['sizeEntries']) * 10
+            + $product->variants->count() * 5
+            + (int) filled($product->image)
             + (int) filled($product->description)
             + (int) (! empty($product->gallery));
     }
 
     /**
-     * @return array{groupKey: string, size: string, baseName: string, category_id: int|null, price: string, product: Product}|null
+     * @return array{groupKey: string, sizeEntries: array, baseName: string, category_id: int|null, price: float, product: Product}|null
      */
     private function describe(Product $product): ?array
     {
@@ -186,28 +215,78 @@ class MergeBlingSizeVariants extends Command
             self::LETTER_TOKENS
         ));
 
-        if (! preg_match('/^(.*\S)\s+(\d{2}|'.$tokenPattern.')$/iu', trim($product->name), $matches)) {
-            return null;
-        }
+        $token = null;
 
-        $baseName = trim($matches[1]);
-        $size = mb_strtoupper($matches[2]);
+        if (preg_match('/^(.*\S)\s+(\d{2}|'.$tokenPattern.')$/iu', trim($product->name), $matches)) {
+            $baseName = trim($matches[1]);
+            $token = mb_strtoupper($matches[2]);
+        } else {
+            $baseName = trim($product->name);
+        }
 
         if (mb_strlen($baseName) < 4) {
             return null;
         }
 
         $normalizedBase = $this->normalize($baseName);
-        $groupKey = $normalizedBase.'|'.$product->category_id.'|'.number_format((float) $product->price, 2, '.', '');
+        $groupKey = $normalizedBase.'|'.$product->category_id;
 
         return [
             'groupKey' => $groupKey,
-            'size' => $size,
+            'sizeEntries' => $this->sizeEntries($product, $token),
             'baseName' => $baseName,
             'category_id' => $product->category_id,
-            'price' => number_format((float) $product->price, 2, ',', '.'),
+            'price' => (float) $product->price,
             'product' => $product,
         ];
+    }
+
+    /**
+     * Figure out which sizes (and per-size stock) a product already represents,
+     * whether it came in as a single size-per-SKU import or already carries its
+     * own variants/sizes from a Bling "produto com variacoes".
+     *
+     * @return array<int, array{size: string, color: string, stock: int}>
+     */
+    private function sizeEntries(Product $product, ?string $token): array
+    {
+        if ($product->variants->isNotEmpty()) {
+            return $product->variants
+                ->map(fn ($variant) => [
+                    'size' => trim((string) $variant->size) ?: (string) $token,
+                    'color' => trim((string) $variant->color),
+                    'stock' => max(0, (int) $variant->stock),
+                ])
+                ->filter(fn (array $entry) => $entry['size'] !== '')
+                ->values()
+                ->all();
+        }
+
+        if ($token !== null) {
+            return [[
+                'size' => $token,
+                'color' => (string) ($product->colors[0] ?? ''),
+                'stock' => max(0, (int) $product->stock),
+            ]];
+        }
+
+        $sizes = collect($product->sizes ?? [])->filter(fn ($size) => trim((string) $size) !== '')->values();
+
+        if ($sizes->isEmpty()) {
+            return [];
+        }
+
+        return $sizes
+            ->map(fn ($size, int $index) => [
+                'size' => trim((string) $size),
+                'color' => (string) ($product->colors[0] ?? ''),
+                // No per-size stock breakdown is available for this legacy shape;
+                // keep the product's total stock on the first size rather than
+                // fabricating numbers, and flag the rest as zero for manual review.
+                'stock' => $index === 0 ? max(0, (int) $product->stock) : 0,
+            ])
+            ->values()
+            ->all();
     }
 
     private function normalize(string $value): string
@@ -218,9 +297,14 @@ class MergeBlingSizeVariants extends Command
         return preg_replace('/\s+/', ' ', $converted !== false ? $converted : $value) ?? $value;
     }
 
-    private function generateUniqueSlug(string $name, array $ignoreIds): string
+    private function generateUniqueSlug(string $name, array $ignoreIds, string $currentSlug): string
     {
         $baseSlug = Str::slug($name) ?: 'produto';
+
+        if ($baseSlug === $currentSlug) {
+            return $currentSlug;
+        }
+
         $slug = $baseSlug;
         $suffix = 2;
 
